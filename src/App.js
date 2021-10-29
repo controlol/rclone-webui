@@ -1,6 +1,6 @@
 import API from './utils/API'
 import { Component, Fragment } from 'react'
-import { Container, InfosContainer, InfosWrapper, ItemsContainer, ActiveContainer, HistoryContainer, HistoryItem, HistoryItemsWrapper } from './styled'
+import { Container, HeaderContainer, InfosContainer, InfosWrapper, ItemsContainer, ActiveContainer, HistoryContainer, HistoryItem, HistoryItemsWrapper, LogoContainer, StatusContainer, StatusBulb } from './styled'
 import Job from './components/job'
 import secondsToTimeString from './utils/timestring'
 import bytesToString from './utils/bytestring'
@@ -45,11 +45,13 @@ class App extends Component {
         "linking": "static",
         "os": "linux",
         "version": "v1.56.2"
-      }
+      },
+      endPointAvailable: true
     }
 
     this.infoInterval = undefined
     this.timeInterval = undefined
+    this.apiInterval = undefined
   }
 
   componentDidMount = () => {
@@ -58,6 +60,7 @@ class App extends Component {
     this.fetchVersionInfo()
 
     this.fetchInfos()
+    if (this.apiInterval === undefined) this.apiInterval = setInterval(this.checkApiEndpoint, 1000)
     if (this.infoInterval === undefined) this.infoInterval = setInterval(this.fetchInfos, 5000)
     if (this.timeInterval === undefined) this.timeInterval = setInterval(() => {
       let { stats } = this.state
@@ -69,10 +72,15 @@ class App extends Component {
   componentWillUnmount = () => {
     clearInterval(this.infoInterval)
     clearInterval(this.timeInterval)
+    clearInterval(this.apiInterval)
+  }
+
+  checkApiEndpoint = () => {
+    if (API.getEndpointStatus() !== this.state.endPointAvailable) this.setState({ endPointAvailable: !this.state.endPointAvailable })
   }
 
   fetchRemotes = () => {
-    return API({
+    return API.request({
       url: "/config/dump",
       "_group": "ui"
     })
@@ -90,11 +98,11 @@ class App extends Component {
 
       this.setState({ remotes })
     })
-    .catch(err => console.error(err))
+    .catch(() => {})
   }
 
   fetchMounts = () => {
-    return API({
+    return API.request({
       url: "/mount/listmounts"
     })
     .then(response => {
@@ -102,11 +110,11 @@ class App extends Component {
 
       this.setState({ mounts: response.data.mountPoints })
     })
-    .catch(err => console.error(err))
+    .catch(() => {})
   }
 
   fetchVersionInfo = () => {
-    return API({
+    return API.request({
       url: "/core/version"
     })
     .then(response => {
@@ -114,18 +122,18 @@ class App extends Component {
 
       this.setState({ version: response.data })
     })
-    .catch(err => console.error(err))
+    .catch(() => {})
   }
 
   fetchInfos = () => {
-    return API({
+    return API.request({
       url: "/core/stats"
     })
     .then(response => {
       if (typeof response.data !== "object") throw new Error("invalid response")
       const stats = response.data
 
-      return API({
+      return API.request({
         url: "core/transferred"
       })
       .then(response => {
@@ -139,12 +147,9 @@ class App extends Component {
 
         this.setState({ transferred, stats })
       })
-      .catch(err => {
-        console.error(err)
-        this.setState({ stats })
-      })
+      .catch(() => this.setState({ stats }))
     })
-    .catch(err => console.error(err))
+    .catch(() => {})
   }
 
   renderLiveSpeed = () => {
@@ -198,7 +203,7 @@ class App extends Component {
     return activeJobIds.map(group => {
       const fileTransfers = transferring.filter(v => v.group === group)
 
-      return <Job key={group} fileTransfers={fileTransfers} jobid={group.replace(/\D/g, '')} refreshStats={this.fetchInfos}/>
+      return <Job key={group} fileTransfers={fileTransfers} jobid={group.replace(/\D/g, '')} refreshStats={this.fetchInfos} />
     })
   }
 
@@ -212,67 +217,80 @@ class App extends Component {
   }
 
   render = () => {
-    const { stats, version } = this.state
+    const { stats, version, endPointAvailable } = this.state
 
     return (
-      <Container>
-        <ItemsContainer>
-          <ActiveContainer>
-            <h1> Active Jobs </h1>
-              { this.renderActiveJobs() }
-          </ActiveContainer>
-          <HistoryContainer>
-            <h1> History </h1>
-            <HistoryItemsWrapper>
-              { this.renderHistory() }
-            </HistoryItemsWrapper>
-          </HistoryContainer>
-        </ItemsContainer>
+      <Fragment>
+        <HeaderContainer>
+          <LogoContainer>
+            <img src="/favicon.ico" alt="Rclone WebUI logo" width="64" height="64" />
+            <h1> Rclone Dashboard </h1>
+          </LogoContainer>
 
-        <InfosContainer>
-          <InfosWrapper style={{ minHeight: "10rem" }}>
-            <h2> Stats </h2>
-            <p> Uptime </p>
-            <p> { secondsToTimeString(stats.elapsedTime, true) } </p>
-            
-            <p> Speed </p>
-            <p> { this.renderLiveSpeed() } </p>
+          <StatusContainer>
+            <StatusBulb style={{ background: endPointAvailable ? "var(--status-green)" : "var(--status-red)" }} />
+            { endPointAvailable ? "API endpoint is behaving normally" : "API endpoint is unavailable" }
+          </StatusContainer>
+        </HeaderContainer>
+        <Container>
+          <ItemsContainer>
+            <ActiveContainer>
+              <h1> Active Jobs </h1>
+                { this.renderActiveJobs() }
+            </ActiveContainer>
+            <HistoryContainer>
+              <h1> History </h1>
+              <HistoryItemsWrapper>
+                { this.renderHistory() }
+              </HistoryItemsWrapper>
+            </HistoryContainer>
+          </ItemsContainer>
 
-            <p> Active transfers </p>
-            <p> { this.renderActiveTransferCount() } </p>
+          <InfosContainer>
+            <InfosWrapper style={{ minHeight: "10rem" }}>
+              <h2> Stats </h2>
+              <p> Uptime </p>
+              <p> { secondsToTimeString(stats.elapsedTime, true) } </p>
+              
+              <p> Speed </p>
+              <p> { this.renderLiveSpeed() } </p>
 
-            <p> Total transfered files </p>
-            <p> { stats.totalTransfers } </p>
+              <p> Active transfers </p>
+              <p> { this.renderActiveTransferCount() } </p>
 
-            <p> Total transferred data </p>
-            <p> { bytesToString(stats.bytes, {}) } </p>
-          </InfosWrapper>
+              <p> Total transfered files </p>
+              <p> { stats.totalTransfers } </p>
 
-          <InfosWrapper style={{ minHeight: "6rem" }}>
-            <h2> Remotes </h2>
-            { this.renderRemotes() }
-          </InfosWrapper>
+              <p> Total transferred data </p>
+              <p> { bytesToString(stats.bytes, {}) } </p>
+            </InfosWrapper>
 
-          <InfosWrapper style={{ minHeight: "4.5rem" }}>
-            <h2> Mounts </h2>
-            { this.renderMounts() }
-          </InfosWrapper>
+            <InfosWrapper style={{ minHeight: "6rem" }}>
+              <h2> Remotes </h2>
+              { this.renderRemotes() }
+            </InfosWrapper>
 
-          <Settings />
+            <InfosWrapper style={{ minHeight: "4.5rem" }}>
+              <h2> Mounts </h2>
+              { this.renderMounts() }
+            </InfosWrapper>
 
-          <InfosWrapper>
-            <h2> System Info </h2>
-            <p> Rclone version </p>
-            <p> { version.version } </p>
+            <Settings />
 
-            <p> GO version </p>
-            <p> { version.goVersion } </p>
-            
-            <p> Architecture </p>
-            <p> { version.arch } </p>
-          </InfosWrapper>
-        </InfosContainer>
-      </Container>
+            <InfosWrapper>
+              <h2> System Info </h2>
+              <p> Rclone version </p>
+              <p> { version.version } </p>
+
+              <p> GO version </p>
+              <p> { version.goVersion } </p>
+              
+              <p> Architecture </p>
+              <p> { version.arch } </p>
+            </InfosWrapper>
+          </InfosContainer>
+        </Container>
+      </Fragment>
     )
   }
 }
