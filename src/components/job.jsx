@@ -8,25 +8,29 @@ class Job extends Component {
   constructor() {
     super()
     this.state = {
-      jobstatus: {
-        progress: 0,
-        eta: 0
-      },
       stats: {
-
+        elapsedTime: 0,
+        eta: 3600,
+        bytes: 1024 * 1024 * 128,
+        totalBytes: 1024 * 1024 * 1024,
+        transferring: [
+          {
+            speed: 23534245,
+            group: "job/1",
+            size: 23457826345,
+            eta: 3600,
+            name: "a very very very long absurdly unneccesarily long name this is if you cant tell"
+          }
+        ]
       },
       jobid: 0
     }
 
     this.decreaseEtaInterval = undefined
     this.fetchStatsInterval = undefined
-    this.fetchJobInterval = undefined
   }
 
   componentDidMount = () => {
-    // this.setState({ jobid: this.props.fileTransfers[0].group.replace(/\D/g, '') })
-
-    this.fetchJobInfo(this.props.fileTransfers[0].group.replace(/\D/g, ''))
     this.fetchStats()
 
     if (this.decreaseEtaInterval === undefined) this.decreaseEtaInterval = setInterval(() => {
@@ -40,13 +44,11 @@ class Job extends Component {
     }, 1000)
 
     if (this.fetchStatsInterval === undefined) this.fetchStatsInterval = setInterval(this.fetchStats, 5 * 1000)
-    if (this.fetchJobInterval === undefined) this.fetchJobInterval = setInterval(this.fetchJobInfo, 30 * 1000)
   }
 
   componentWillUnmount = () => {
     clearInterval(this.decreaseEtaInterval)
-    // clearInterval(this.fetchStatsInterval)
-    clearInterval(this.fetchJobInterval)
+    clearInterval(this.fetchStatsInterval)
   }
 
   fetchStats = () => {
@@ -60,23 +62,6 @@ class Job extends Component {
       if (typeof response.data !== "object") return new Error("invalid response")
 
       this.setState({ stats: response.data })
-    })
-    .catch(() => {})
-  }
-
-  fetchJobInfo = id => {
-    if (!id) id = this.state.jobid
-
-    return API.request({
-      url: "/job/status",
-      data: {
-        jobid: this.props.jobid
-      }
-    })
-    .then(response => {
-      if (typeof response.data !== "object") throw new Error("invalid response")
-
-      this.setState({ jobstatus: response.data })
     })
     .catch(() => {})
   }
@@ -131,7 +116,7 @@ class Job extends Component {
             <p> Time left: </p>
             <p> { secondsToTimeString(stats.eta) } </p>
             <p> Progress: </p>
-            <p> { ((stats.bytes / stats.totalBytes) * 100).toFixed(2) } % </p>
+            <p> { ((stats.bytes / stats.totalBytes) * 100 || 0).toFixed(2) } % </p>
             <span/>
 
             <StopButton onClick={this.stopJob}> Cancel </StopButton>

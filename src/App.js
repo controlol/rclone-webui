@@ -26,7 +26,16 @@ class App extends Component {
         totalChecks: 0,
         totalTransfers: 0,
         transferTime: 0,
-        transfers: 0
+        transfers: 0,
+        transferring: [
+          {
+            speed: 23534245,
+            group: "job/1",
+            size: 23457826345,
+            eta: 3600,
+            name: "a very very very long absurdly unneccesarily long name this is if you cant tell"
+          }
+        ]
       },
       remotes: [],
       mounts: [],
