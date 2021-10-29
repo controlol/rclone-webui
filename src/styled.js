@@ -2,19 +2,47 @@ import styled from 'styled-components'
 
 export const Container = styled.div`
   display: flex;
-  gap: 2rem;
-  margin: 5vh 10vw;
+  gap: 0 2rem;
+  margin: 1vh 10vw;
   flex-wrap: wrap;
 
+  @media only screen and (max-width: 1280px) {
+    margin: 0vh 1vw 1vh 1vw;
+  }
+`
+
+export const HeaderContainer = styled(Container)`
+  justify-content: space-between;
+
   @media only screen and (max-width: 800px) {
-    margin: 1vh 1vw;
+    flex-direction: column;
+    margin-bottom: 2rem;
   }
 `
 
 export const ItemsContainer = styled.div`
-  flex-basis: 40rem;
-  outline: red;
+  flex-basis: 39.6rem;
   flex-grow: 1;
+`
+
+export const LogoContainer = styled.div`
+  /* background: var(--box-gradient); */
+  border-radius: .5rem;
+  padding: 1rem 2rem;
+  min-height: 100px;
+
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+
+  @media only screen and (max-width: 800px) {
+    justify-content: center;
+    padding: 0;
+  }
+  
+  @media only screen and (max-width: 600px) {
+    font-size: .8rem;
+  }
 `
 
 export const ActiveContainer = styled.div`
@@ -73,6 +101,48 @@ export const HistoryItem = styled(ActiveTransfer)`
 
 export const InfosContainer = styled.div`
   
+  @media only screen and (max-width: 1280px) {
+    display: grid;
+    margin-top: 1.5rem;
+    gap: 1rem;
+    grid-template-columns: 1fr 1fr 1fr;
+    width: 100%;
+  }
+
+  @media only screen and (max-width: calc(1080px + 32px)) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media only screen and (max-width: calc(720px + 16px)) {
+    grid-template-columns: 1fr;
+  }
+`
+
+export const StatusContainer = styled.div`
+  /* border-radius: .5rem;
+  border-style: solid;
+  border-width: 1px; */
+  padding: .5rem .8rem;
+
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 360px;
+
+  @media only screen and (max-width: 1280px) {
+    width: unset;
+  }
+
+  @media only screen and (max-width: 800px) {
+    justify-content: center;
+    padding: 0;
+  }
+`
+
+export const StatusBulb = styled.div`
+  height: 1.15rem;
+  width: 1.15rem;
+  border-radius: 1.15rem;
 `
 
 export const InfosWrapper = styled.div`
@@ -89,7 +159,12 @@ export const InfosWrapper = styled.div`
     grid-column: 1 / span 2;
   }
 
-  &:first-child {
+  &:nth-child(1) {
+    margin: 0;
+  }
+
+  @media only screen and (max-width: 1280px) {
+    /* width: 100%; */
     margin: 0;
   }
 `
