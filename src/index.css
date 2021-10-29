@@ -1,16 +1,26 @@
 html {
-  --background-color: #eeeeee;
+  --background-color: #eee;
+  --popup-background: #ddd;
+  --popup-header: #ccc;
   --primary-color: #3f79ad;
   --secondary-color: #71caf2;
   --primary-color-trans: #3f79ad33;
   --secondary-color-trans: #71caf233;
+  --text-color: #000;
 
   --box-gradient: linear-gradient(#71caf220, #3f79ad33);
 
   --status-red: linear-gradient(#fd4444aa, #c92222);
   --status-green: linear-gradient(#3bc322aa, #3c891c);
 
+  --button-color: #eee;
+  --button-hover: #ddd;
+
   scroll-behavior: smooth;
+  display: none;
+
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 body {
@@ -19,8 +29,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  background-color: var(--background-color);
 }
 
 * {

@@ -181,13 +181,13 @@ export const InfosWrapper = styled.div`
 export const Button = styled.div`
   padding: .5rem 1rem;
   text-align: center;
-  background-color: #eee;
+  background-color: var(--button-color);
   border-radius: .2rem;
   transition: background-color .3s;
   cursor: pointer;
 
   :hover {
-    background-color: #ddd;
+    background-color: var(--button-hover);
   }
 `
 
@@ -203,7 +203,7 @@ export const PopupContainer = styled.div`
   width: 80vw;
   left: 10vw;
   height: 94vh;
-  background-color: #dddddd;
+  background-color: var(--popup-background);
   padding: 1rem 2rem;
   overflow-y: auto;
   z-index: 999;
@@ -230,7 +230,7 @@ export const PopupTitle = styled.p`
   font-size: 2rem;
   text-align: center;
   font-weight: 600;
-  background-color: #cccccc;
+  background-color: var(--popup-header);
   position: fixed;
   transform: translateX(-50%);
   left: 50%;
@@ -253,4 +253,11 @@ export const Cross = styled.div`
   @media only screen and (max-width: 800px) {
     right: 5vw;
   }
+`
+
+export const IconWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 `
