@@ -76,6 +76,15 @@ export const ActiveTransfer = styled.div`
   display: grid;
   grid-template-columns: 1fr auto auto auto;
   gap: 0 1rem;
+
+  p:first-child {
+    overflow: hidden;
+    direction: rtl;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  }
 `
 
 export const HistoryContainer = styled(ActiveContainer)`
