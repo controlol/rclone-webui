@@ -7,6 +7,9 @@ html {
 
   --box-gradient: linear-gradient(#71caf220, #3f79ad33);
 
+  --status-red: linear-gradient(#fd4444aa, #c92222);
+  --status-green: linear-gradient(#3bc322aa, #3c891c);
+
   scroll-behavior: smooth;
 }
 
