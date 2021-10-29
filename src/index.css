@@ -14,7 +14,7 @@ html {
   --status-green: linear-gradient(#3bc322aa, #3c891c);
 
   --button-color: #eee;
-  --button-hover: #ddd;
+  --button-hover: #e4e4e4;
 
   scroll-behavior: smooth;
   display: none;
