@@ -16,8 +16,8 @@ class Settings extends Component {
   componentDidMount = () => this.fetchSettings()
 
   fetchSettings = () => {
-    return new Promise((resolve, reject) => {
-      return API({
+    return new Promise((resolve) => {
+      return API.request({
         url: "/options/get"
       })
       .then(response => {
@@ -27,14 +27,13 @@ class Settings extends Component {
 
         return resolve()
       })
-      .catch(reject)
+      .catch(() => {})
     })
   }
 
   showSettings = () => {
-    this.fetchSettings()
+    return this.fetchSettings()
     .then(() => this.setState({ show: true }))
-    .catch(err => console.error(err))
   }
 
   renderSettings = () => {

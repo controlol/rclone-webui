@@ -50,7 +50,7 @@ class Job extends Component {
   }
 
   fetchStats = () => {
-    return API({
+    return API.request({
       url: "/core/stats",
       data: {
         group: "job/" + this.props.jobid
@@ -61,13 +61,13 @@ class Job extends Component {
 
       this.setState({ stats: response.data })
     })
-    .catch(err => console.log(err))
+    .catch(() => {})
   }
 
   fetchJobInfo = id => {
     if (!id) id = this.state.jobid
 
-    return API({
+    return API.request({
       url: "/job/status",
       data: {
         jobid: this.props.jobid
@@ -78,18 +78,18 @@ class Job extends Component {
 
       this.setState({ jobstatus: response.data })
     })
-    .catch(err => console.error(err))
+    .catch(() => {})
   }
 
   stopJob = () => {
-    return API({
+    return API.request({
       url: "/job/stop",
       data: {
         jobid: this.props.jobid
       }
     })
     .then(() => this.props.refreshStats())
-    .catch(err => console.error(err))
+    .catch(() => {})
   }
 
   renderSize = bytes => {

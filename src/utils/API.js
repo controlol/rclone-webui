@@ -1,8 +1,56 @@
 import axios from 'axios'
 
-const API = axios.create({
-  method: "POST",
-  baseURL: "http://192.168.1.70:5572"
-})
+class API {
+  constructor() {
+    this.available = true
+    this.retryInterval = undefined
+    this.instance = axios.create({
+      method: "POST",
+      baseURL: "http://localhost:5572"
+    })
+  }
 
-export default API
+  request = options => {
+    return new Promise((resolve, reject) => {
+      if (!this.available) return reject()
+
+      return this.instance(options)
+      .then(response => {
+        if (!response.data) throw new Error("no data in response")
+        this.available = true
+        return resolve(response)
+      })
+      .catch(err => {
+        // endpoint was unreachable
+        if ((!err || !err.response || !err.response.status) && this.available) {
+          this.available = false
+          if (this.retryInterval === undefined) this.retryInterval = setInterval(this.retryStatus, 5000);
+        }
+
+        // log error and reject
+        console.error(err)
+        return reject()
+      })
+    })
+  }
+
+  /**
+   * when the endpoint is unavailable it will be retried every 5 seconds
+   */
+  retryStatus = () => {
+    return this.instance({
+      url: "/core/version"
+    })
+    .then(() => {
+      this.available = true
+      clearInterval(this.retryInterval)
+    })
+    .catch(err => {})
+  }
+
+  getEndpointStatus = () => this.available
+}
+
+const APIClass = new API()
+
+export default APIClass
