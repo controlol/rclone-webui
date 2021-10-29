@@ -1,4 +1,6 @@
 const secondsToTimeString = (seconds, daystring = false) => {
+  if (isNaN(seconds)) return (daystring ? "0 days, " : "") + "00:00:00"
+
   const days = Math.floor(seconds / 86400)
   seconds = seconds - days * 86400
   const hours = Math.floor(seconds / 3600)
