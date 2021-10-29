@@ -142,6 +142,8 @@ class App extends Component {
       if (typeof response.data !== "object") throw new Error("invalid response")
       const stats = response.data
 
+      if (stats.transfers === 0) return this.setState({ stats })
+
       return API.request({
         url: "core/transferred"
       })
