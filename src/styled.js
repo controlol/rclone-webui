@@ -48,7 +48,7 @@ export const LogoContainer = styled.div`
 `
 
 export const ActiveContainer = styled.div`
-  min-height: 23.65rem; // for perfect alignment with the info boxes
+  min-height: 23.5rem; // for perfect alignment with the info boxes
   background: var(--box-gradient);
   border-radius: .5rem;
   padding: 1rem 2rem;
