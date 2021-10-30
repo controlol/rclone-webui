@@ -92,6 +92,9 @@ class Settings extends Component {
     }
   }
 
+  /**
+   * Get all the stored settings
+   */
   fetchSettings = () => {
     return new Promise((resolve) => {
       return API.request({
@@ -108,11 +111,17 @@ class Settings extends Component {
     })
   }
 
+  /**
+   * fetches the settings and displays them afterwards
+   */
   showSettings = () => {
     return this.fetchSettings()
     .then(() => this.setState({ show: true }))
   }
 
+  /**
+   * renders the settings on a popup
+   */
   renderSettings = () => {
     return (
       <PopupContainer>

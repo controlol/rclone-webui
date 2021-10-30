@@ -33,6 +33,7 @@ class Job extends Component {
   componentDidMount = () => {
     this.fetchStats()
 
+    // make the view look more responsive by counting every second
     if (this.decreaseEtaInterval === undefined) this.decreaseEtaInterval = setInterval(() => {
       let { stats } = this.state
 
@@ -43,14 +44,19 @@ class Job extends Component {
       this.setState({ stats })
     }, 1000)
 
+    // get job stats every 5 seconds
     if (this.fetchStatsInterval === undefined) this.fetchStatsInterval = setInterval(this.fetchStats, 5 * 1000)
   }
 
+  // clear the intervals
   componentWillUnmount = () => {
     clearInterval(this.decreaseEtaInterval)
     clearInterval(this.fetchStatsInterval)
   }
 
+  /**
+   * get the stats from the job this component displays
+   */
   fetchStats = () => {
     return API.request({
       url: "/core/stats",
@@ -66,6 +72,9 @@ class Job extends Component {
     .catch(() => {})
   }
 
+  /**
+   * Immediately cancels the current job
+   */
   stopJob = () => {
     return API.request({
       url: "/job/stop",
@@ -77,14 +86,9 @@ class Job extends Component {
     .catch(() => {})
   }
 
-  renderSize = bytes => {
-    return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB"
-  }
-
-  renderSpeed = bytes => {
-    return (bytes / (1024 * 1024)).toFixed(2) + " MB/s"
-  }
-
+  /**
+   * render each transfer with info
+   */
   renderActiveTransfer = () => {
     const { transferring } = this.state.stats
 
@@ -93,9 +97,9 @@ class Job extends Component {
     return transferring.map(v => (
       <ActiveTransfer key={v.name}>
         <p> { v.name } </p>
-        <p> { this.renderSize(v.size) } </p>
+        <p> { bytesToString(v.size, {}) } </p>
         <p> { secondsToTimeString(v.eta) } </p>
-        <p> { this.renderSpeed(v.speed) } </p>
+        <p> { bytesToString(v.speed, { speed: true }) } </p>
       </ActiveTransfer>
     ))
   }

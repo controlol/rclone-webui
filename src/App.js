@@ -64,26 +64,38 @@ class App extends Component {
   }
 
   componentDidMount = () => {
+    // fetch initial info
     this.fetchRemotes()
     this.fetchMounts()
     this.fetchVersionInfo()
-
     this.fetchInfos()
-    if (this.apiInterval === undefined) this.apiInterval = setInterval(this.checkApiEndpoint, 1000)
+
+    // get server stats every 5 seconds
     if (this.infoInterval === undefined) this.infoInterval = setInterval(this.fetchInfos, 5000)
+
+    // make the view look more responsive by counting every second
     if (this.timeInterval === undefined) this.timeInterval = setInterval(() => {
       let { stats } = this.state
       stats.elapsedTime++
       this.setState({ stats })
     }, 1000)
+
+    // check api status every second
+    if (this.apiInterval === undefined) this.apiInterval = setInterval(this.checkApiEndpoint, 1000)
   }
 
+  // clear the intervals
   componentWillUnmount = () => {
     clearInterval(this.infoInterval)
     clearInterval(this.timeInterval)
     clearInterval(this.apiInterval)
   }
 
+  /**
+   * check if the api is still available
+   * if state changes show this to the user
+   * also updates the favicon
+   */
   checkApiEndpoint = () => {
     if (API.getEndpointStatus() !== this.state.endPointAvailable) {
       this.setState({ endPointAvailable: !this.state.endPointAvailable })
@@ -102,6 +114,9 @@ class App extends Component {
     }
   }
 
+  /**
+   * get the configured remotes
+   */
   fetchRemotes = () => {
     return API.request({
       url: "/config/dump",
@@ -124,6 +139,9 @@ class App extends Component {
     .catch(() => {})
   }
 
+  /**
+   * get the mounted volumes
+   */
   fetchMounts = () => {
     return API.request({
       url: "/mount/listmounts"
@@ -136,6 +154,9 @@ class App extends Component {
     .catch(() => {})
   }
 
+  /**
+   * get software versions and architecture info
+   */
   fetchVersionInfo = () => {
     return API.request({
       url: "/core/version"
@@ -148,6 +169,9 @@ class App extends Component {
     .catch(() => {})
   }
 
+  /**
+   * gets the server stats
+   */
   fetchInfos = () => {
     return API.request({
       url: "/core/stats"
@@ -177,6 +201,10 @@ class App extends Component {
     .catch(() => {})
   }
 
+  /**
+   * renders the total speed of all transfers
+   * @returns {String}
+   */
   renderLiveSpeed = () => {
     const transferring = this.state.stats.transferring
 
@@ -189,13 +217,10 @@ class App extends Component {
     return bytesToString(speed, { speed: true })
   }
 
-  renderActiveTransferCount = () => {
-    const transferring = this.state.stats.transferring
-
-    if (!transferring || typeof transferring !== "object") return "0 files"
-    return transferring.length + " files"
-  }
-
+  /**
+   * renders the list of remotes
+   * @returns {Component}
+   */
   renderRemotes = () => {
     return this.state.remotes.map(v => (
       <Fragment key={v.name}>
@@ -205,6 +230,10 @@ class App extends Component {
     ))
   }
 
+  /**
+   * renders the list of mounts
+   * @returns {Component}
+   */
   renderMounts = () => {
     return this.state.mounts.map(v => (
       <Fragment key={v.MountPoint}>
@@ -214,6 +243,11 @@ class App extends Component {
     ))
   }
 
+  /**
+   * Each job gets it's own component and is rendered if there are any
+   * Jobs are found by their transfer group
+   * @returns {Job}
+   */
   renderActiveJobs = () => {
     if (typeof this.state.stats.transferring !== "object") return;
 
@@ -232,6 +266,10 @@ class App extends Component {
     })
   }
 
+  /**
+   * Renders all history items
+   * @returns {Component[]}
+   */
   renderHistory = () => {
     return this.state.transferred.map((v, i) => (
       <HistoryItem key={"transfer" + i}>
@@ -243,6 +281,7 @@ class App extends Component {
 
   render = () => {
     const { stats, version, endPointAvailable } = this.state
+    const { elapsedTime, transfers, totalTransfers, bytes } = stats
 
     return (
       <Fragment>
@@ -275,19 +314,19 @@ class App extends Component {
             <InfosWrapper style={{ minHeight: "10rem" }}>
               <h2> Stats </h2>
               <p> Uptime </p>
-              <p> { secondsToTimeString(stats.elapsedTime, true) } </p>
+              <p> { secondsToTimeString(elapsedTime, true) } </p>
               
               <p> Speed </p>
               <p> { this.renderLiveSpeed() } </p>
 
               <p> Active transfers </p>
-              <p> { this.renderActiveTransferCount() } </p>
+              <p> { transfers + (transfers === 1 ? " file" : " files" )} </p>
 
               <p> Total transfered files </p>
-              <p> { stats.totalTransfers } </p>
+              <p> { totalTransfers + (totalTransfers === 1 ? " file" : " files" )} </p>
 
               <p> Total transferred data </p>
-              <p> { bytesToString(stats.bytes, {}) } </p>
+              <p> { bytesToString(bytes, {}) } </p>
             </InfosWrapper>
 
             <InfosWrapper style={{ minHeight: "6rem" }}>
