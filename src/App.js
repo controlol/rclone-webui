@@ -1,10 +1,13 @@
-import API from './utils/API'
 import { Component, Fragment } from 'react'
+
 import { Container, HeaderContainer, InfosContainer, InfosWrapper, ItemsContainer, ActiveContainer, HistoryContainer, HistoryItem, HistoryItemsWrapper, LogoContainer, StatusContainer, StatusBulb } from './styled'
-import Job from './components/job'
+
+import API from './utils/API'
 import secondsToTimeString from './utils/timestring'
 import bytesToString from './utils/bytestring'
+
 import Settings from './components/settings'
+import Job from './components/job'
 
 class App extends Component {
   constructor() {
