@@ -272,6 +272,7 @@ export const PopupContainer = styled.div`
 
   pre {
     margin-top: 4.5rem;
+    white-space: pre-wrap;
   }
 
   @media only screen and (max-width: 800px) {
@@ -279,6 +280,7 @@ export const PopupContainer = styled.div`
     height: 100vh;
     left: 0;
     top: 0;
+    padding: 1rem .5rem;
   }
 `
 
