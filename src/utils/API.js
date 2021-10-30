@@ -5,8 +5,7 @@ class API {
     this.available = true
     this.retryInterval = undefined
     this.instance = axios.create({
-      method: "POST",
-      baseURL: "http://localhost:5572"
+      method: "POST"
     })
   }
 
