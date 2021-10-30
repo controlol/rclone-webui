@@ -57,8 +57,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.version.version_tag }}
-        release_name: ${{ steps.version.version }}
+        tag_name: ${{ steps.version.outputs.version_tag }}
+        release_name: ${{ steps.version.outputs.version }}
         draft: false
         prerelease: true
         owner: ${{ github.actor }}
