@@ -10,7 +10,11 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/controlol/rclone-webui)
 
 ## Description
-A simple information panel showing you all you need to know about your Rclone instance. 
+This WebUI for Rclone is a intuitive and easy way to access information about your Rclone transfers.
+
+#### What is Rclone
+Rclone is a command line program to manage files on cloud storage. It is a feature rich alternative to cloud vendors' web storage interfaces. [Over 40 cloud storage products](https://rclone.org/#providers) support rclone including S3 object stores, business & consumer file storage services, as well as standard transfer protocols. You can take a look at the project [here](https://rclone.org/)
+
 ### Features
 - General stats from current rcd session
 - View active running jobs and their transfers
@@ -21,16 +25,19 @@ A simple information panel showing you all you need to know about your Rclone in
 - View configured settings
 - System info
 
-#### Info about each Job
-- Total job speed
-- ETA for job and elapsed time
-- Job total size and transferred size
-- Speed for each file
-- Size of each file
-- ETA of each file
+### Roadmap
+Currently the WebUI only acts as a instrument to view active jobs and a history of completed transfers. 
+##### Version 1.1 (November 10 2021)
+In this version I plan to add configurable global settings for rclone. Apart from viewing the settings, which is currently possible, you will be able to set most of the [global flags](https://rclone.org/flags/) using the WebUI.
 
-#### What is Rclone
-Rclone is a open source tool to transfer files from your local system to many types of cloud hosted storage. You can take a look at the project [here](https://rclone.org/)
+##### Version 1.2 (December 1 2021)
+In the release of version 2.0 it will be possible to browse remotes. It will even be possible to browse two remotes or local folders at the same time! Allowing you to copy or move files from one to the other.
+
+##### Version 1.3 (December 20 2021)
+In this release it will be possible to upload files to a remote from your web browser.
+
+##### Version 1.4/2.0 (January 10 2022)
+The endgoal is to support syncing files automatically on a schedule using cronjobs on linux. This last feature (for now) will require a secondary API and cannot run with Rclone alone, therefor this feature is most pushed back.
 
 ## Usage
 Start Rclone remote control server
