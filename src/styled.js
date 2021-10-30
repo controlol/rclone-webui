@@ -23,6 +23,10 @@ export const HeaderContainer = styled(Container)`
 export const ItemsContainer = styled.div`
   flex-basis: 39.6rem;
   flex-grow: 1;
+
+  @media only screen and (max-width: 800px) {
+    flex-basis: unset;
+  }
 `
 
 export const LogoContainer = styled.div`
@@ -39,7 +43,6 @@ export const LogoContainer = styled.div`
     justify-content: center;
     padding: 0;
   }
-  
   @media only screen and (max-width: 600px) {
     font-size: .8rem;
   }
@@ -50,9 +53,23 @@ export const ActiveContainer = styled.div`
   background: var(--box-gradient);
   border-radius: .5rem;
   padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
 
   h1 {
     margin-left: .5rem;
+  }
+
+  @media only screen and (max-width: 1280px) {
+    min-height: unset;
+  }
+  @media only screen and (max-width: 800px) {
+    padding: 1rem .5rem;
+
+    h1 {
+      margin-left: .3rem; // add .3 because InfosContainer has total of .8 padding
+    }
   }
 `
 
@@ -65,6 +82,25 @@ export const ActiveJob = styled.div`
   grid-template-columns: auto auto auto auto 1fr;
   gap: .3rem 1.5rem;
   position: relative;
+
+  p:nth-child(4n) {
+    grid-column: 4 / span 2;
+  }
+
+  @media only screen and (max-width: 600px) {
+    grid-template-columns: auto auto 1fr;
+
+    p:nth-child(4n) {
+      grid-column: unset;
+    }
+
+    p:nth-child(2n) {
+      grid-column: 2 / span 2;
+    }
+  }
+  @media only screen and (max-width: 450px) {
+    padding-bottom: 3.5rem;
+  }
 `
 
 export const ActiveTransfer = styled.div`
@@ -72,7 +108,7 @@ export const ActiveTransfer = styled.div`
   border: 1px solid var(--secondary-color);
   background-color: var(--secondary-color-trans);
   padding: .5rem;
-  margin: .5rem 0 0 1.5rem;
+  margin-left: 1.5rem;
   display: grid;
   grid-template-columns: 1fr auto auto auto;
   gap: 0 1rem;
@@ -83,7 +119,18 @@ export const ActiveTransfer = styled.div`
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
-    width: 100%;
+  }
+
+  @media only screen and (max-width: 800px) {
+    margin-left: 0;
+
+    p:nth-child(1) {
+      grid-column: 1 / span 4;
+    }
+
+    p:nth-child(2) {
+      grid-column: 2;
+    }
   }
 `
 
@@ -121,9 +168,12 @@ export const InfosContainer = styled.div`
   @media only screen and (max-width: calc(1080px + 32px)) {
     grid-template-columns: 1fr 1fr;
   }
-
   @media only screen and (max-width: calc(720px + 16px)) {
     grid-template-columns: 1fr;
+    margin-top: 1rem;
+  }
+  @media only screen and (max-width: 450px) {
+    margin-bottom: 2rem;
   }
 `
 
@@ -141,7 +191,6 @@ export const StatusContainer = styled.div`
   @media only screen and (max-width: 1280px) {
     width: unset;
   }
-
   @media only screen and (max-width: 800px) {
     justify-content: center;
     padding: 0;
@@ -195,6 +244,13 @@ export const StopButton = styled(Button)`
   position: absolute;
   right: 1rem;
   top: 1.1rem;
+
+  @media only screen and (max-width: 450px) {
+    right: unset;
+    top: unset;
+    bottom: .8rem;
+    left: .6rem;
+  }
 `
 
 export const PopupContainer = styled.div`

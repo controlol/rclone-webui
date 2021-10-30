@@ -111,13 +111,11 @@ class Job extends Component {
             <p> { secondsToTimeString(stats.elapsedTime) } </p>
             <p> Progress: </p>
             <p> { bytesToString(stats.bytes, { format: "GB", fixed: 3 }) } / { bytesToString(stats.totalBytes, { format: "GB", fixed: 3 }) } GB </p>
-            <span/>
 
             <p> Time left: </p>
             <p> { secondsToTimeString(stats.eta) } </p>
             <p> Progress: </p>
             <p> { ((stats.bytes / stats.totalBytes) * 100 || 0).toFixed(2) } % </p>
-            <span/>
 
             <StopButton onClick={this.stopJob}> Cancel </StopButton>
           </ActiveJob>
