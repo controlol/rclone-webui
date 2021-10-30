@@ -2,7 +2,7 @@
 
 <p float="left">
   <img src="./public/android-chrome-192x192.png" alt="Rclone WebUI Logo" width="192" height="192" />
-  <img src="./rclone-webui-text-759x192.png" alt="Rclone WebUI Logo" width="759" height="192" />
+  <img src="./rclone-webui-text-759x192.png" alt="Rclone WebUI Logo" width="633" height="160" />
 </p>
 
 ![GitHub](https://img.shields.io/github/license/controlol/rclone-webui)
