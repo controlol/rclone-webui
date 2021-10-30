@@ -85,7 +85,21 @@ class App extends Component {
   }
 
   checkApiEndpoint = () => {
-    if (API.getEndpointStatus() !== this.state.endPointAvailable) this.setState({ endPointAvailable: !this.state.endPointAvailable })
+    if (API.getEndpointStatus() !== this.state.endPointAvailable) {
+      this.setState({ endPointAvailable: !this.state.endPointAvailable })
+
+      const link = document.querySelectorAll("link[rel~='icon']");
+
+      link.forEach(v => {
+        let segments = v.href.split(".")
+        if (this.state.endPointAvailable) {
+          segments[0] = segments[0].substring(0, segments[0].length - 3)
+        } else {
+          segments[0] += "-gs"
+        }
+        v.href = segments.join(".")
+      })
+    }
   }
 
   fetchRemotes = () => {
@@ -234,7 +248,7 @@ class App extends Component {
       <Fragment>
         <HeaderContainer>
           <LogoContainer>
-            <img src="/favicon.ico" alt="Rclone WebUI logo" width="64" height="64" />
+            <img src="/favicon-64x64.png" alt="Rclone WebUI logo" width="64" height="64" />
             <h1> Rclone Dashboard </h1>
           </LogoContainer>
 
