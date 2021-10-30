@@ -6,7 +6,7 @@
 </p>
 
 ![GitHub](https://img.shields.io/github/license/controlol/rclone-webui)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/controlol/rclone-webui/Update%20Release%20V1.0?label=Build%20Release)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/controlol/rclone-webui/Semantic%20Release?label=Build%20Release)
 ![GitHub top language](https://img.shields.io/github/languages/top/controlol/rclone-webui)
 
 ## Description
