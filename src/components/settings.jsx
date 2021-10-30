@@ -40,7 +40,6 @@ class Settings extends Component {
     if (darkTheme === "true") darkTheme = true
 
     this.setState({ darkTheme })
-    console.log({darkTheme})
 
     this.htmlEl = document.documentElement
 
@@ -61,8 +60,6 @@ class Settings extends Component {
   switchTheme = checked => {
     this.setState({ darkTheme: checked })
     localStorage.setItem("darkTheme", checked)
-
-    console.log({checked})
 
     if (checked) {
       Object.keys(this.darkThemeStyle).forEach(k => {
