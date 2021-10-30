@@ -1,6 +1,7 @@
 import { Component, Fragment } from 'react'
+import ReactTooltip from 'react-tooltip'
 
-import { Container, HeaderContainer, InfosContainer, InfosWrapper, ItemsContainer, ActiveContainer, HistoryContainer, HistoryItem, HistoryItemsWrapper, LogoContainer, StatusContainer, StatusBulb } from './styled'
+import { Container, HeaderContainer, InfosContainer, InfosWrapper, ItemsContainer, ActiveContainer, HistoryContainer, HistoryItem, HistoryItemsWrapper, LogoContainer, StatusContainer, StatusBulb, InfosRow } from './styled'
 
 import API from './utils/API'
 import secondsToTimeString from './utils/timestring'
@@ -8,55 +9,60 @@ import bytesToString from './utils/bytestring'
 
 import Settings from './components/settings'
 import Job from './components/job'
+import Navigation from './components/navigation'
 
 class App extends Component {
   constructor() {
     super()
     this.state = {
       stats: {
-        bytes: 0,
-        checks: 0,
-        deletedDirs: 0,
-        deletes: 0,
-        elapsedTime: 0,
-        errors: 0,
-        eta: null,
-        fatalError: false,
-        renames: 0,
-        retryError: false,
-        speed: 0,
-        totalBytes: 0,
-        totalChecks: 0,
-        totalTransfers: 0,
-        transferTime: 0,
-        transfers: 0,
-        transferring: [
-          {
-            speed: 23534245,
-            group: "job/1",
-            size: 23457826345,
-            eta: 3600,
-            name: "a very very very long absurdly unneccesarily long name this is if you cant tell"
-          }
-        ]
+        // bytes: 0,
+        // checks: 0,
+        // deletedDirs: 0,
+        // deletes: 0,
+        // elapsedTime: 0,
+        // errors: 0,
+        // eta: null,
+        // fatalError: false,
+        // renames: 0,
+        // retryError: false,
+        // speed: 0,
+        // totalBytes: 0,
+        // totalChecks: 0,
+        // totalTransfers: 0,
+        // transferTime: 0,
+        // transfers: 0,
+        // transferring: [
+        //   {
+        //     speed: 23534245,
+        //     group: "job/1",
+        //     size: 23457826345,
+        //     eta: 3600,
+        //     name: "a very very very long absurdly unneccesarily long name this is if you cant tell"
+        //   }
+        // ]
       },
-      remotes: [],
+      remotes: [{
+        // name: "gdrive",
+        // type: "drive",
+        // bytes: 84265292526
+      }],
       mounts: [],
       transferred: [],
       version: {
-        "arch": "amd64",
-        "decomposed": [
-          1,
-          56,
-          2
-        ],
-        "goTags": "none",
-        "goVersion": "go1.16.8",
-        "isBeta": false,
-        "isGit": false,
-        "linking": "static",
-        "os": "linux",
-        "version": "v1.56.2"
+        // "arch": "amd64",
+        // "decomposed": [
+        //   1,
+        //   56,
+        //   2
+        // ],
+        // "goTags": "none",
+        // "goVersion": "go1.16.8",
+        // "isBeta": false,
+        // "isGit": false,
+        // "linking": "static",
+        // "os": "linux",
+        // "version": "v1.56.2"
       },
       endPointAvailable: true
     }
@@ -130,14 +136,33 @@ class App extends Component {
 
       let remotes = []
 
-      Object.keys(response.data).forEach(v => {
-        remotes.push({
-          name: v,
-          type: response.data[v].type
+      return Promise.all(Object.keys(response.data).map(v => {
+        return new Promise((resolve, reject) => {
+          return API.request({
+            url: "/operations/about",
+            data: {
+              fs: v + ":"
+            }
+          })
+          .then(({data}) => {
+            if (typeof data !== "object" || isNaN(data.used)) return reject()
+
+            remotes.push({
+              name: v,
+              type: response.data[v].type,
+              bytes: data.used
+            })
+
+            return resolve()
+          })
+          .catch(reject)
         })
       })
-
-      this.setState({ remotes })
+      )
+      .then(() => {
+        this.setState({ remotes })
+      })
+      .catch(err => console.error(err))
     })
     .catch(() => {})
   }
@@ -226,10 +251,11 @@ class App extends Component {
    */
   renderRemotes = () => {
     return this.state.remotes.map(v => (
-      <Fragment key={v.name}>
+      <InfosRow key={v.name} data-tip={bytesToString(v.bytes, { fixed: 2 })} data-for={"size"+v.MountPoint}>
         <p> {v.name} </p>
         <p> {v.type} </p>
-      </Fragment>
+        <ReactTooltip id={"size"+v.MountPoint} place="left" type="info" effect="solid" />
+      </InfosRow>
     ))
   }
 
@@ -239,7 +265,7 @@ class App extends Component {
    */
   renderMounts = () => {
     return this.state.mounts.map(v => (
-      <Fragment key={v.MountPoint}>
+      <Fragment key={v.MountPoint} >
         <p> {v.Fs} </p>
         <p> {v.MountPoint} </p>
       </Fragment>
@@ -284,7 +310,7 @@ class App extends Component {
 
   render = () => {
     const { stats, version, endPointAvailable } = this.state
-    const { elapsedTime, transfers, totalTransfers, bytes } = stats
+    const { elapsedTime, transfers, totalTransfers, bytes, errors, lastError } = stats
 
     return (
       <Fragment>
@@ -299,6 +325,9 @@ class App extends Component {
             { endPointAvailable ? "API endpoint is behaving normally" : "API endpoint is unavailable" }
           </StatusContainer>
         </HeaderContainer>
+
+        <Navigation info={{ errors, lastError }} />
+
         <Container>
           <ItemsContainer>
             <ActiveContainer>

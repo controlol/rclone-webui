@@ -7,16 +7,17 @@ export const Container = styled.div`
   flex-wrap: wrap;
 
   @media only screen and (max-width: 1280px) {
-    margin: 0vh 1vw 1vh 1vw;
+    margin: 1vh 1vw 1vh 1vw;
   }
 `
 
 export const HeaderContainer = styled(Container)`
   justify-content: space-between;
-
+  flex-wrap: nowrap;
+  
   @media only screen and (max-width: 800px) {
+    flex-wrap: wrap;
     flex-direction: column;
-    margin-bottom: 2rem;
   }
 `
 
@@ -33,6 +34,8 @@ export const LogoContainer = styled.div`
   border-radius: .5rem;
   padding: 1rem 2rem;
   min-height: 100px;
+  flex-grow: 1;
+  flex-wrap: wrap;
 
   display: flex;
   gap: .5rem;
@@ -42,8 +45,10 @@ export const LogoContainer = styled.div`
     justify-content: center;
     padding: 0;
   }
-  @media only screen and (max-width: 600px) {
-    font-size: .8rem;
+  @media only screen and (max-width: 450px) {
+    h1 {
+      font-size: 1.6rem;
+    }
   }
 `
 
@@ -188,6 +193,7 @@ export const StatusContainer = styled.div`
 
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: .5rem;
   width: 360px;
 
@@ -204,6 +210,15 @@ export const StatusBulb = styled.div`
   height: 1.15rem;
   width: 1.15rem;
   border-radius: 1.15rem;
+`
+
+export const InfosRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .2rem 2rem;
+  grid-column: 1 / span 2;
+  height: max-content;
+  cursor: default;
 `
 
 export const InfosWrapper = styled.div`
