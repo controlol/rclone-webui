@@ -12,9 +12,6 @@ A simple information panel showing you all you need to know about your Rclone in
 - View configured settings
 - System info
 
-#### What is Rclone
-Rclone is a open source tool to transfer files from your local system to many types of cloud hosted storage. You can take a look at the project [here](https://rclone.org/)
-
 #### Info about each Job
 - Total job speed
 - ETA for job and elapsed time
@@ -22,6 +19,9 @@ Rclone is a open source tool to transfer files from your local system to many ty
 - Speed for each file
 - Size of each file
 - ETA of each file
+
+#### What is Rclone
+Rclone is a open source tool to transfer files from your local system to many types of cloud hosted storage. You can take a look at the project [here](https://rclone.org/)
 
 ## Installation
 Download package from [here]()
@@ -35,15 +35,20 @@ If you are on a headless machine you can add the argument `--rc-web-gui-no-open-
 
 ## Screenshots
 
-### Darkmode
-<img src="./screenshots/desktop-dark.png" />
-
 ### Lightmode
-<img src="./screenshots/desktop-light.png" />
+<img src="./screenshots/desktop-light.png" alt="Rclone WebUI Light" />
+
+### Darkmode
+<img src="./screenshots/desktop-dark.png" alt="Rclone WebUI Dark" />
 
 ### Mobile views
-<img src="./screenshots/iPhone-X-light.png"/>
-<img src="./screenshots/iPhone-X-dark.png"/>
+<p float="left">
+  <img src="./screenshots/iPhone-X-light.png" alt="Rclone WebUI Mobile Light" width="300"/>
+  <img src="./screenshots/iPhone-X-dark.png" alt="Rclone WebUI Mobile Dark" width="300"/>
+</p>
+
+## Used in other projects
+This project is also used in [gdrive-rclone-docker#webui](https://github.com/controlol/gdrive-rclone-docker/tree/webui)
 
 ## Building from source
 
