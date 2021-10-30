@@ -1,70 +1,67 @@
-# Getting Started with Create React App
+# Rclone WebUI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Description
+A simple information panel showing you all you need to know about your Rclone instance. 
+### Features
+- General stats from current rcd session
+- View active running jobs and their transfers
+- Browse the history of succesful transferred files
+- View list of remotes
+- View list of mounted remotes
+- Darkmode (autodetect)
+- View configured settings
+- System info
 
-## Available Scripts
+#### What is Rclone
+Rclone is a open source tool to transfer files from your local system to many types of cloud hosted storage. You can take a look at the project [here](https://rclone.org/)
 
-In the project directory, you can run:
+#### Info about each Job
+- Total job speed
+- ETA for job and elapsed time
+- Job total size and transferred size
+- Speed for each file
+- Size of each file
+- ETA of each file
 
-### `npm start`
+## Installation
+Download package from [here]()
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Place the contents in a folder and remember it's location, I like to use /webui because I will be running this in a docker container.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Start Rclone remote control server
+```rclone rcd --rc-serve --rc-user <YOURUSER> --rc-pass <YOURPASS> /webui```
+You can see the last argument is the folder where you placed the WebUI earlier. This is the same as specifying `--rc-files=/webui`. More documentation on rcd is available [here](https://rclone.org/rc).<br/>
+If you are on a headless machine you can add the argument `--rc-web-gui-no-open-browser` so Rclone won't try to open a browser.
 
-### `npm test`
+## Screenshots
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Darkmode
+<img src="./screenshots/desktop-dark.png" />
 
-### `npm run build`
+### Lightmode
+<img src="./screenshots/desktop-light.png" />
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Mobile views
+<img src="./screenshots/iPhone-X-light.png"/>
+<img src="./screenshots/iPhone-X-dark.png"/>
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Building from source
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+#### Prerequisites
+To build the site you are expected to have npm and nodejs installed and have a active internet connection.
 
-### `npm run eject`
+#### Build
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Get the source files
+```
+git clone https://github.com/controlol/rclone-webui
+cd rclone-webui
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Install dependencies
+`npm ci`
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Build the project
+`npm run build`
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+The WebUI should have been build in the build folder. Copy the files to a location you can easily access or use the build directory as the source for your rclone rcd.
