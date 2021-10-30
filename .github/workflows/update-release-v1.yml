@@ -35,7 +35,7 @@ jobs:
     - run: zip rclone-webui-release-${{ env.RELEASE_VERSION }}.zip $(find build)
 
     - name: Update release
-      uses: johnwbyrd/update-release@v1
+      uses: johnwbyrd/update-release@v1.0.0
       with:
         release: Release ${{ env.RELEASE_VERSION }}
         token: ${{ secrets.GITHUB_TOKEN }}
