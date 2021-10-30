@@ -21,7 +21,17 @@ class API {
       })
       .catch(err => {
         // endpoint was unreachable
-        if ((!err || !err.response || !err.response.status) && this.available) {
+        if (
+          (
+            !err
+            || !err.response
+            || (
+              err.response.status >= 400
+              && err.response.status < 500
+            )
+          )
+          && this.available
+        ) {
           this.available = false
           if (this.retryInterval === undefined) this.retryInterval = setInterval(this.retryStatus, 5000);
         }
