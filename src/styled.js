@@ -30,7 +30,6 @@ export const ItemsContainer = styled.div`
 `
 
 export const LogoContainer = styled.div`
-  /* background: var(--box-gradient); */
   border-radius: .5rem;
   padding: 1rem 2rem;
   min-height: 100px;
@@ -49,7 +48,7 @@ export const LogoContainer = styled.div`
 `
 
 export const ActiveContainer = styled.div`
-  min-height: 23rem;
+  min-height: 23.65rem; // for perfect alignment with the info boxes
   background: var(--box-gradient);
   border-radius: .5rem;
   padding: 1rem 2rem;
@@ -153,6 +152,10 @@ export const HistoryItem = styled(ActiveTransfer)`
   grid-template-columns: 1fr auto;
   gap: .5rem 1.5rem;
   margin: 0.5rem 0 0 0;
+
+  @media only screen and (max-width: 800px) {
+    grid-template-columns: 1fr auto;
+  }
 `
 
 export const InfosContainer = styled.div`
@@ -209,7 +212,7 @@ export const InfosWrapper = styled.div`
   background: var(--box-gradient);
   display: grid;
   grid-template-columns: 1fr 1fr;
-  padding: .5rem .8rem;
+  padding: .5rem .8rem .8rem .8rem;
   gap: .2rem 2rem;
   margin: 1rem 0;
 
