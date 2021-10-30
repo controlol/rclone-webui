@@ -20,7 +20,17 @@ jobs:
         node-version: [16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-    steps:
+    steps:    
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build --if-present
+    - run: zip build.zip $(find build)
+
     - name: Generate version
       id: version
       uses: paulhatch/semantic-version@v4.0.2
@@ -39,16 +49,6 @@ jobs:
         short_tags: true
         # If this is set to true, *every* commit will be treated as a new version.
         bump_each_commit: false
-    
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: zip build.zip $(find build)
 
     - name: Create Release
       id: create_release
