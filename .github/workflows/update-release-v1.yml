@@ -30,6 +30,7 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: zip build.zip $(find build)
+    - run: git describe --tags --abbrev=0 --match=v*[0-9.] master~1
 
     - name: Generate version
       id: version
@@ -46,7 +47,6 @@ jobs:
         format: "${major}.${minor}.${patch}-prerelease${increment}"
         # If this is set to true, *every* commit will be treated as a new version.
         bump_each_commit: true
-        branch: master
 
     - name: Create Release
       id: create_release
