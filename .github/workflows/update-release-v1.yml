@@ -44,11 +44,8 @@ jobs:
         minor_pattern: "(MINOR)"
         # A string to determine the format of the version output
         format: "${major}.${minor}.${patch}-prerelease${increment}"
-        # Indicate whether short tags like 'v1' should be supported. If false only full
-        # tags like 'v1.0.0' will be recognized.
-        short_tags: true
         # If this is set to true, *every* commit will be treated as a new version.
-        bump_each_commit: false
+        bump_each_commit: true
         branch: master
 
     - name: Create Release
@@ -60,7 +57,7 @@ jobs:
         tag_name: ${{ steps.version.outputs.version_tag }}
         release_name: ${{ steps.version.outputs.version }}
         draft: false
-        prerelease: true
+        prerelease: false
         owner: ${{ github.actor }}
         
     - name: Upload Release Asset
