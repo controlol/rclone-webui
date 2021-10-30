@@ -35,28 +35,44 @@ class Settings extends Component {
   componentDidMount = () => {
     this.fetchSettings()
 
-    let darkTheme = localStorage.getItem("darkTheme") || false
-    if (darkTheme === "false") darkTheme = false
-    if (darkTheme === "true") darkTheme = true
-
-    this.setState({ darkTheme })
-
+    // get the lighttheme settings
     this.htmlEl = document.documentElement
 
     Object.keys(this.darkThemeStyle).forEach(k => {
       this.lightThemeStyle[k] = this.htmlEl.style.getPropertyValue(k)
     })
 
+    // check if we have darkmode set
+    let darkTheme = localStorage.getItem("darkTheme") || false
+    if (darkTheme === "false") darkTheme = false
+    if (darkTheme === "true") darkTheme = true
+
+    // if darkTheme is not in local storage and user system color is dark set darkTheme to true
+    if (
+      window.matchMedia
+      && window.matchMedia('(prefers-color-scheme: dark)').matches
+      && localStorage.getItem("darkTheme") === null
+    ) darkTheme = true
+
+    this.setState({ darkTheme })
+
+    // switch theme
     if (darkTheme) {
       this.switchTheme(true)
     }
 
+    // unhide page
     setTimeout(() => {
       this.htmlEl.style.setProperty("display", "block")
       this.htmlEl.style.setProperty("transition", "background-color .3s, color .3s")
-    }, 100)
+    }, 50)
   }
 
+  /**
+   * Sets state and localstorage of darkTheme
+   * Changes to the new theme
+   * @param {Boolean} checked should darkTheme be enabled
+   */
   switchTheme = checked => {
     this.setState({ darkTheme: checked })
     localStorage.setItem("darkTheme", checked)
