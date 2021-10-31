@@ -281,16 +281,13 @@ export const PopupContainer = styled.div`
   padding: 1rem 2rem;
   overflow-y: auto;
   z-index: 999;
+  display: flex;
+  flex-direction: column;
 
   ::-webkit-scrollbar {
     display: none;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
-  }
-
-  pre {
-    margin-top: 4.5rem;
-    white-space: pre-wrap;
   }
 
   @media only screen and (max-width: 800px) {
@@ -307,15 +304,13 @@ export const PopupTitle = styled.p`
   text-align: center;
   font-weight: 600;
   background-color: var(--popup-header);
-  position: fixed;
-  transform: translateX(-50%);
-  left: 50%;
   width: 80vw;
   padding: 1rem 0;
-  margin-top: -1rem;
+  margin: -1rem 0 1rem -2rem;
 
   @media only screen and (max-width: 800px) {
     width: 100vw;
+    margin-left: -.5rem;
   }
 `
 
@@ -324,10 +319,12 @@ export const Cross = styled.div`
   position: fixed;
   z-index: 20;
   right: 11.5vw;
+  top: calc(3vh + .5rem);
   font-size: 1.25rem;
 
   @media only screen and (max-width: 800px) {
     right: 5vw;
+    top: .5rem;
   }
 `
 
