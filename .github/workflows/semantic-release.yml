@@ -60,7 +60,7 @@ jobs:
         minor_pattern: "(MINOR)"
         # Indicate whether short tags like 'v1' should be supported. If false only full
         # tags like 'v1.0.0' will be recognized.
-        short_tags: true
+        short_tags: false
         # A string to determine the format of the version output
         format: "${major}.${minor}.${patch}"
         # If this is set to true, *every* commit will be treated as a new version.
