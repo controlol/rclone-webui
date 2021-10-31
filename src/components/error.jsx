@@ -19,7 +19,7 @@ const Error = ({ errorCount, lastError }) => {
 
   const imageSource = errorCount > 0 ? ErrorCircle : CheckCircle
 
-  const ErrorToolTipString = errorCount > 0 ? `${errorCountString()} since Rclone started<br/>Last error: ${lastError}` : "0 errors since Rclone started"
+  const ErrorToolTipString = errorCount > 0 ? `${errorCountString} since Rclone started<br/>Last error: ${lastError}` : "0 errors since Rclone started"
 
   return (
     <ErrorContainer data-tip={ErrorToolTipString} data-for="error-cnt" >
