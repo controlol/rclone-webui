@@ -10,6 +10,7 @@ import bytesToString from './utils/bytestring'
 import Settings from './components/settings'
 import Job from './components/job'
 import Navigation from './components/navigation'
+import FileBrowserMenu from './components/fileBrowserMenu'
 
 class App extends Component {
   constructor() {
@@ -64,7 +65,8 @@ class App extends Component {
         // "os": "linux",
         // "version": "v1.56.2"
       },
-      endPointAvailable: true
+      endPointAvailable: true,
+      renderBrowser: false
     }
 
     this.infoInterval = undefined
@@ -229,6 +231,30 @@ class App extends Component {
     .catch(() => {})
   }
 
+  openBrowser = name => {
+    let browserFs = JSON.parse(sessionStorage.getItem("browserFs")),
+        currentPath = JSON.parse(sessionStorage.getItem("currentPath"))
+
+    if (browserFs === null) browserFs = ["", ""]
+    if (currentPath === null) currentPath = ["/", "/"]
+
+    browserFs[0] = name
+    currentPath[0] = "/"
+
+    sessionStorage.setItem("browserFs", JSON.stringify(browserFs))
+    sessionStorage.setItem("currentPath", JSON.stringify(currentPath))
+
+    this.setState({ renderBrowser: true })
+  }
+
+  renderFileBrowser = () => {
+    if (this.state.renderBrowser) return (
+      <FileBrowserMenu close={() => this.setState({ renderBrowser: false })} />
+    )
+
+    return <Fragment />
+  }
+
   /**
    * renders the total speed of all transfers
    * @returns {String}
@@ -251,7 +277,12 @@ class App extends Component {
    */
   renderRemotes = () => {
     return this.state.remotes.map(v => (
-      <InfosRow key={v.name} data-tip={bytesToString(v.bytes, { fixed: 2 })} data-for={"size"+v.MountPoint}>
+      <InfosRow
+        key={"mount" + v.name}
+        data-tip={bytesToString(v.bytes, { fixed: 2 })}
+        data-for={"size"+v.MountPoint}
+        onClick={() => this.openBrowser(v.name)}
+      >
         <p> {v.name} </p>
         <p> {v.type} </p>
         <ReactTooltip id={"size"+v.MountPoint} place="left" type="info" effect="solid" />
@@ -314,6 +345,10 @@ class App extends Component {
 
     return (
       <Fragment>
+        {
+          this.renderFileBrowser()
+        }
+
         <HeaderContainer>
           <LogoContainer>
             <img src="/favicon-64x64.png" alt="Rclone WebUI logo" width="64" height="64" />
