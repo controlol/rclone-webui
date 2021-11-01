@@ -223,14 +223,15 @@ class FileBrowser extends Component {
 
   componentDidMount = () => {
     this.setState({ prevPath: this.props.currentPath, files: this.props.files })
+
+    // add click event listener for closing menu
+    window.addEventListener('click', this.handleWindowClick)
   }
 
   componentDidUpdate = () => {
     // if the component was just created set the path
     if (this.state.prevPath === "" && this.props.currentPath !== "") return this.setState({ prevPath: this.props.currentPath, files: this.props.files })
 
-    // add click event listener for closing menu
-    window.addEventListener('click', () => this.setState({ renderMenu: false }))
 
     // the path changed
     if (this.props.currentPath !== this.state.prevPath) {
@@ -247,6 +248,12 @@ class FileBrowser extends Component {
       delay(600).then(() => this.setState({ transitionFiles: 0 }))
     }
   }
+
+  componentWillUnmount = () => {
+    window.removeEventListener('click', this.handleWindowClick)
+  }
+
+  handleWindowClick = () => this.setState({ renderMenu: false })
 
   // used to filter the files
   handleInputChange({target}) {
