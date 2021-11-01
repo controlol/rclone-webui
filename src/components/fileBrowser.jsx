@@ -44,13 +44,13 @@ const FBContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
+  height: inherit;
   position: relative;
 `
 
 // bunch of styled components
 const BrowserWrapper = styled.div`
-  height: 100%;
+  height: inherit;
   width: 100%;
   overflow-x: hidden;
   overflow-y: scroll;
@@ -219,6 +219,7 @@ class FileBrowser extends Component {
     this.backListener = undefined
 
     this.handleInputChange = this.handleInputChange.bind(this)
+    this.searchTimeout = undefined
   }
 
   componentDidMount = () => {
@@ -257,11 +258,14 @@ class FileBrowser extends Component {
 
   // used to filter the files
   handleInputChange({target}) {
-    const value = target.type === 'checkbox' ? target.checked : target.value
-    const name = target.name
+    clearTimeout(this.searchTimeout)
 
-    this.setState({ [name]: value })
+    const value = target.type === 'checkbox' ? target.checked : target.value
+
+    this.searchTimeout = setTimeout(this.doSearch, 200, value.toLowerCase())
   }
+
+  doSearch = filter => this.setState({ filter })
 
   // change the way files should be ordered
   updateOrder = orderBy => {
@@ -396,6 +400,8 @@ class FileBrowser extends Component {
     else        files = this.state.files
 
     return files
+    // apply search filter
+    .filter(v => v.Name?.toLowerCase().indexOf(this.state.filter) !== -1)
     // sort by name
     .sort((a,b) => this.state.orderBy === "name" ? this.state.orderAscending ? a.Name.localeCompare(b.Name, 'nl', { sensitivity: 'base' }) : b.Name.localeCompare(a.Name, 'nl', { sensitivity: 'base' }) : 0)
     // // sort by modified date
@@ -404,8 +410,6 @@ class FileBrowser extends Component {
     .sort((a,b) => this.state.orderBy === "size" ? this.state.orderAscending ? a.Size - b.Size : b.Size - a.Size : 0)
     // // sort folders to top
     .sort((a,b) => (b.IsDir ? 1 : 0) - (a.IsDir ? 1 : 0))
-    // apply search filter
-    .filter(v => v.Name?.includes(this.state.filter))
     .map(v => (
       <Fragment key={v.Name + "file"}>
         { this.renderImage(v.MimeType, v.Name) }
@@ -453,7 +457,7 @@ class FileBrowser extends Component {
           </div>
           <div>
             <SearchLabel htmlFor="filterFiles" style={{ textAlign: "end" }} > Search </SearchLabel>
-            <SearchInput name="filter" id="filterFiles" type="text" placeholder="search" value={this.state.filter} autoComplete="off" onChange={this.handleInputChange} />
+            <SearchInput name="filter" id="filterFiles" type="text" placeholder="search" initialValue="" autoComplete="off" onChange={this.handleInputChange} />
           </div>
 
           <GridFileBrowser>
