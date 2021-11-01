@@ -283,6 +283,7 @@ export const PopupContainer = styled.div`
   z-index: 999;
   display: flex;
   flex-direction: column;
+  gap: 1rem 0;
 
   ::-webkit-scrollbar {
     display: none;
@@ -306,7 +307,7 @@ export const PopupTitle = styled.p`
   background-color: var(--popup-header);
   width: 80vw;
   padding: 1rem 0;
-  margin: -1rem 0 1rem -2rem;
+  margin: -1rem 0 0 -2rem;
 
   @media only screen and (max-width: 800px) {
     width: 100vw;
