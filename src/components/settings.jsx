@@ -24,9 +24,11 @@ class Settings extends Component {
       "--popup-background": "#222",
       "--popup-header": "#333",
       "--box-gradient": "linear-gradient(#71caf220, #3f79ad33)",
+      "--box-radial-gradient": "radial-gradient(#71caf220, transparent 150%)",
       "--status-red": "linear-gradient(#f56565aa, #c92222)",
       "--status-green": "linear-gradient(#95ee85aa, #3c891c)",
       "--text-color": "#fff",
+      "--text-hover": "#eee",
       "--button-color": "#111",
       "--button-hover": "#181818"
     }

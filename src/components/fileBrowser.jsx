@@ -36,14 +36,21 @@ import ZIP from '../assets/fileTypes/zip.svg'
 import CaretDown from '../assets/icons/caretDown.svg'
 import bytesToString from '../utils/bytestring.js'
 
-// bunch of styled components
-const BrowserContainer = styled.div`
+const FBContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   height: 100%;
-  width: 50%;
+`
+
+// bunch of styled components
+const BrowserWrapper = styled.div`
+  height: 100%;
+  width: 100%;
   overflow-x: hidden;
   overflow-y: scroll;
   position: relative;
-  background: radial-gradient(rgba(0,0,0,.25), transparent 175%);
+  background: var(--box-radial-gradient);
   border-radius: 0 0 .3em .3em;
   user-select: none;
 
@@ -81,14 +88,14 @@ const GridFileBrowser = styled.div`
   } */
 `
 
-const GridFileHeader = styled.div`
-  background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,.03));
+const BrowserHeader = styled.div`
+  background: var(--box-gradient);
   padding-right: .5rem;
   overflow: visible;
   border-radius: .3rem .3rem 0 0;
   height: unset;
   transform: unset;
-  width: 50%;
+  width: 100%;
 
   display: flex;
   flex-wrap: wrap;
@@ -111,7 +118,7 @@ const SpanPathDirectory = styled.span`
   }
 
   &:hover {
-    color: var(--off-white);
+    color: var(--text-hover);
   }
 `
 
@@ -379,8 +386,8 @@ class FileBrowser extends Component {
     const { transitionFiles } = this.state
 
     return (
-      <Fragment>
-        <GridFileHeader>
+      <FBContainer>
+        <BrowserHeader>
           <div style={{
             // gridColumn: "1 / span 2",
             display: "flex",
@@ -444,9 +451,9 @@ class FileBrowser extends Component {
               }
             </SizeP>
           </GridFileBrowser>
-        </GridFileHeader>
+        </BrowserHeader>
 
-        <BrowserContainer>
+        <BrowserWrapper>
           {
             transitionFiles !== 0 &&
             <GridFileBrowser style={{
@@ -475,8 +482,8 @@ class FileBrowser extends Component {
           }}>
             { this.renderFiles() }
           </GridFileBrowser>
-        </BrowserContainer>
-      </Fragment>
+        </BrowserWrapper>
+      </FBContainer>
     )
   }
 }

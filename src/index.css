@@ -9,8 +9,10 @@ html {
   --primary-color-trans: #3f79ad33;
   --secondary-color-trans: #71caf233;
   --text-color: #000;
+  --text-hover: #222;
 
   --box-gradient: linear-gradient(#71caf220, #3f79ad33);
+  --box-radial-gradient: radial-gradient(#3f79ad33, transparent 150%);
 
   --status-red: linear-gradient(#fd4444aa, #c92222);
   --status-green: linear-gradient(#3bc322aa, #3c891c);
