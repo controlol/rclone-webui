@@ -35,6 +35,8 @@ import ZIP from '../assets/fileTypes/zip.svg'
 
 import CaretDown from '../assets/icons/caretDown.svg'
 import bytesToString from '../utils/bytestring.js'
+import { Button } from '../styled.js'
+import assert from 'assert'
 
 const FBContainer = styled.div`
   display: flex;
@@ -204,7 +206,11 @@ class FileBrowser extends Component {
       orderAscending: true,
       files: [],
       prevPath: "",
-      transitionFiles: 0
+      transitionFiles: 0,
+      renderMenu: false,
+      cursorX: 0,
+      cursorY: 0,
+      clicked: ""
     }
 
     this.backListener = undefined
@@ -219,6 +225,9 @@ class FileBrowser extends Component {
   componentDidUpdate = () => {
     // if the component was just created set the path
     if (this.state.prevPath === "" && this.props.currentPath !== "") return this.setState({ prevPath: this.props.currentPath, files: this.props.files })
+
+    // add click event listener for closing menu
+    window.addEventListener('click', () => this.setState({ renderMenu: false }))
 
     // the path changed
     if (this.props.currentPath !== this.state.prevPath) {
@@ -327,13 +336,44 @@ class FileBrowser extends Component {
     }
   }
 
+  doAction = a => this.props.action(a, this.state.clicked)
+
   openMenu = (e) => {
     e.preventDefault()
 
-    // get position of the cursor
-    // somehow know the file that was clicked
-    // open menu on the position of the cursor
-    // display different options for dir and files?
+    assert(
+      typeof e.pageX === "number"
+      && typeof e.pageY === "number"
+      && typeof e.target.innerHTML === "string"
+      && e.target.innerHTML.length > 0
+    )
+
+    this.setState({
+      cursorX: e.pageX,
+      cursorY: e.pageY,
+      renderMenu: true,
+      clicked: e.target.innerHTML
+    })
+  }
+
+  renderMenu = () => {
+    if (this.state.renderMenu) return (
+      <div
+        onMouseLeave={() => this.setState({ renderMenu: false })}
+        style={{
+          position: "fixed",
+          top: this.state.cursorY - 3,
+          left: this.state.cursorX + 3,
+          backgroundColor: "var(--button-color)",
+          zIndex: 900,
+          borderRadius: "3px"
+        }}
+      >
+        <Button onClick={() => this.doAction("copy")}> Copy </Button>
+        <Button onClick={() => this.doAction("move")}> Move </Button>
+        <Button onClick={() => this.doAction("delete")}> Delete </Button>
+      </div>
+    )
   }
 
   /**
@@ -366,7 +406,7 @@ class FileBrowser extends Component {
           v.IsDir ?
             <DirNameP onClick={() => this.updatePath(v.IsDir, v.Name)} onContextMenu={this.openMenu}> { v.Name } </DirNameP>
             :
-            <FilenameP> { v.Name } </FilenameP>
+            <FilenameP onContextMenu={this.openMenu}> { v.Name } </FilenameP>
         }
         {/* <ModifiedP> { v.modified.toLocaleString() } </ModifiedP> */}
         <SizeP> { !v.IsDir ? bytesToString(v.Size, {}) : "" } </SizeP>
@@ -387,6 +427,9 @@ class FileBrowser extends Component {
 
     return (
       <FBContainer>
+        {
+          this.renderMenu()
+        }
         <BrowserHeader>
           <div style={{
             // gridColumn: "1 / span 2",
