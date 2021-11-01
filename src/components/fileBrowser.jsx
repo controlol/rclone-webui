@@ -404,9 +404,9 @@ class FileBrowser extends Component {
         { this.renderImage(v.MimeType, v.Name) }
         {
           v.IsDir ?
-            <DirNameP onClick={() => this.updatePath(v.IsDir, v.Name)} onContextMenu={this.openMenu}> { v.Name } </DirNameP>
+            <DirNameP onClick={() => this.updatePath(v.IsDir, v.Name)} onContextMenu={this.openMenu}>{ v.Name }</DirNameP>
             :
-            <FilenameP onContextMenu={this.openMenu}> { v.Name } </FilenameP>
+            <FilenameP onContextMenu={this.openMenu}>{ v.Name }</FilenameP>
         }
         {/* <ModifiedP> { v.modified.toLocaleString() } </ModifiedP> */}
         <SizeP> { !v.IsDir ? bytesToString(v.Size, {}) : "" } </SizeP>
