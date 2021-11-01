@@ -21,3 +21,23 @@ export const Input = styled.input`
 export const Label = styled.label`
   margin-right: .7vw;
 `
+
+export const FileBrowsersContainer = styled.div`
+  display: flex;
+  gap: 0 1rem;
+  height: 100%;
+`
+
+export const FileBrowserWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: .5rem 0;
+  width: 100%;
+  height: 100%;
+`
+
+export const FileBrowserRemotes = styled.div`
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-start;
+`
