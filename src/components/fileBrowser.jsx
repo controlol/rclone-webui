@@ -361,8 +361,17 @@ class FileBrowser extends Component {
     }
   }
 
-  doAction = a => this.props.action(a, this.state.clicked)
+  /**
+   * Wrapper for the props.action function
+   * @param {String} a type of action to be performed
+   * @returns {Promise}
+   */
+  doAction = a => this.props.action(a, this.state.clicked).catch(err => console.error(err))
 
+  /**
+   * Opens the actions menu
+   * @param {ElementEvent} e The event that called this function
+   */
   openMenu = (e) => {
     e.preventDefault()
 
@@ -381,6 +390,9 @@ class FileBrowser extends Component {
     })
   }
 
+  /**
+   * Renders a simple menu to perform actions on the clicked file
+   */
   renderMenu = () => {
     if (this.state.renderMenu) return (
       <div
@@ -402,13 +414,12 @@ class FileBrowser extends Component {
   }
 
   /**
-   * render all files found in a directory
-   * there are multiple ways to sort the files
-   * always show folders on top
+   * Render the files found in a directory
+   * @param {Boolean} isNext are these the next files to be rendered, if so use props instead of state
    */
-  renderFiles = (isNew) => {
+  renderFiles = (isNext) => {
     let files = [{}]
-    if (isNew)  files = this.props.files
+    if (isNext)  files = this.props.files
     else        files = this.state.files
 
     files = this.getOrderedItems(files).slice(this.state.from, this.state.to)
@@ -429,6 +440,11 @@ class FileBrowser extends Component {
     ))
   }
 
+  /**
+   * Filters and orders the files
+   * @param {Array} files Array of objects that describe the file
+   * @returns {Array}
+   */
   getOrderedItems = files => {
     return files
     // apply search filter
@@ -443,18 +459,26 @@ class FileBrowser extends Component {
     .sort((a,b) => (b.IsDir ? 1 : 0) - (a.IsDir ? 1 : 0))
   }
 
-  handleDebounce = (scrollTop, clientHeight) => {
+  /**
+   * Calculates new from and to numbers for the rows that should be rendered
+   * @param {Number} scrollTop pixels from the top of the div
+   * @param {Number} clientHeight height of div in pixels
+   */
+  handleGridPosition = (scrollTop, clientHeight) => {
     const maxVisibleRows = Math.ceil(clientHeight / (ROW_HEIGHT + ROW_GAP))
     const from = Math.max(0, Math.floor(scrollTop / (ROW_HEIGHT + ROW_GAP)) - maxVisibleRows * DATA_PADDING)
     const to = Math.min(this.state.files.length, from + maxVisibleRows * (DATA_PADDING * 2 + 1))
-    console.log({from, to})
     this.setState({from, to})
   }
 
+  /**
+   * Creates a timeout to handle the scroll event and calls the handler
+   * @param {ElementEvent} e event that triggered the call to this function
+   */
   handleGridScroll = e => {
     clearTimeout(this.scrollTimeout)
     const { scrollTop, clientHeight } = e.target
-    this.scrollTimeout = setTimeout(this.handleDebounce, DEBOUNCE_THRESHOLD, scrollTop, clientHeight)
+    this.scrollTimeout = setTimeout(this.handleGridPosition, DEBOUNCE_THRESHOLD, scrollTop, clientHeight)
   }
 
   // render the path the user is currently at
