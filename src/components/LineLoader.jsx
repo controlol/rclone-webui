@@ -2,19 +2,19 @@ import styled, { keyframes } from 'styled-components'
 
 const BarWidthAnimation = keyframes`
   0% {
-    width: 40%;
+    width: 70%;
   }
   100% {
-    width: 25%;
+    width: 30%;
   }
 `
 
 const BarPositionAnimation = keyframes`
   0% {
-    left: -50%;
+    left: -35%;
   }
   100% {
-    left: 100%;
+    left: 135%;
   }
 `
 
@@ -40,7 +40,8 @@ const LoaderContainer = styled.div`
 
   ::after {
     background-color: var(--secondary-color);
-    animation: ${BarWidthAnimation} 8s, ${BarPositionAnimation} 3s;
+    transform: translateX(-50%);
+    animation: ${BarWidthAnimation} 2s infinite alternate, ${BarPositionAnimation} 2s infinite;
   }
 `
 
