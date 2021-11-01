@@ -20,6 +20,7 @@ import JPG from '../assets/fileTypes/jpg.svg'
 import JS from '../assets/fileTypes/js.svg'
 import json from '../assets/fileTypes/json.svg'
 import MP3 from '../assets/fileTypes/mp3.svg'
+import MKV from '../assets/fileTypes/mkv.svg'
 import MP4 from '../assets/fileTypes/mp4.svg'
 import PDF from '../assets/fileTypes/pdf.svg'
 import PNG from '../assets/fileTypes/png.svg'
@@ -267,32 +268,35 @@ class FileBrowser extends Component {
     if (type === "inode/directory") return <img src={Folder} alt="folder" width="20px" height="20px" />
 
     const ext = path.extname(filename).toLowerCase().substring(1)
-    if (ext === "aac") return <img src={AAC} alt="aac" width="20px" height="20px" />
-    if (ext === "avi") return <img src={AVI} alt="avi" width="20px" height="20px" />
-    if (ext === "css") return <img src={CSS} alt="css" width="20px" height="20px" />
-    if (/^docx?$/.test(ext)) return <img src={DOC} alt="doc" width="20px" height="20px" />
-    if (ext === "exe") return <img src={EXE} alt="exe" width="20px" height="20px" />
-    if (ext === "flac") return <img src={FLAC} alt="flac" width="20px" height="20px" />
-    if (ext === "gif") return <img src={GIF} alt="gif" width="20px" height="20px" />
-    if (ext === "html") return <img src={HTML} alt="html" width="20px" height="20px" />
-    if (/^jpe?g$/.test(ext)) return <img src={JPG} alt="jpg" width="20px" height="20px" />
-    if (ext === "js") return <img src={JS} alt="js" width="20px" height="20px" />
-    if (ext === "json") return <img src={json} alt="json" width="20px" height="20px" />
-    if (ext === "mp3") return <img src={MP3} alt="mp3" width="20px" height="20px" />
-    if (ext === "mp4") return <img src={MP4} alt="mp4" width="20px" height="20px" />
-    if (ext === "pdf") return <img src={PDF} alt="pdf" width="20px" height="20px" />
-    if (ext === "png") return <img src={PNG} alt="png" width="20px" height="20px" />
-    if (ext === "rar") return <img src={RAR} alt="rar" width="20px" height="20px" />
-    if (ext === "7z") return <img src={Sevenzip} alt="7z" width="20px" height="20px" />
-    if (ext === "svg") return <img src={SVG} alt="svg" width="20px" height="20px" />
-    if (ext === "tiff") return <img src={TIFF} alt="tiff" width="20px" height="20px" />
-    if (ext === "txt") return <img src={TXT} alt="txt" width="20px" height="20px" />
-    if (ext === "wav") return <img src={WAV} alt="wav" width="20px" height="20px" />
-    if (ext === "wma") return <img src={WMA} alt="wma" width="20px" height="20px" />
-    if (ext === "xml") return <img src={XML} alt="xml" width="20px" height="20px" />
-    if (ext === "zip") return <img src={ZIP} alt="zip" width="20px" height="20px" />
 
-    return <img src={Other} alt="text" width="20px" height="20px" />
+    switch (ext) {
+      case "aac": return <img src={AAC} alt="aac" width="20px" height="20px" />;
+      case "avi": return <img src={AVI} alt="avi" width="20px" height="20px" />;
+      case "css": return <img src={CSS} alt="css" width="20px" height="20px" />;
+      case /^docx?$/.test(ext): return <img src={DOC} alt="doc" width="20px" height="20px" />;
+      case "exe": return <img src={EXE} alt="exe" width="20px" height="20px" />;
+      case "flac": return <img src={FLAC} alt="flac" width="20px" height="20px" />;
+      case "gif": return <img src={GIF} alt="gif" width="20px" height="20px" />;
+      case "html": return <img src={HTML} alt="html" width="20px" height="20px" />;
+      case /^jpe?g$/.test(ext): return <img src={JPG} alt="jpg" width="20px" height="20px" />;
+      case "js": return <img src={JS} alt="js" width="20px" height="20px" />;
+      case "json": return <img src={json} alt="json" width="20px" height="20px" />;
+      case "mp3": return <img src={MP3} alt="mp3" width="20px" height="20px" />;
+      case "mkv": return <img src={MKV} alt="mkv" width="20px" height="20px" />;
+      case "mp4": return <img src={MP4} alt="mp4" width="20px" height="20px" />;
+      case "pdf": return <img src={PDF} alt="pdf" width="20px" height="20px" />;
+      case "png": return <img src={PNG} alt="png" width="20px" height="20px" />;
+      case "rar": return <img src={RAR} alt="rar" width="20px" height="20px" />;
+      case "7z": return <img src={Sevenzip} alt="7z" width="20px" height="20px" />;
+      case "svg": return <img src={SVG} alt="svg" width="20px" height="20px" />;
+      case "tiff": return <img src={TIFF} alt="tiff" width="20px" height="20px" />;
+      case "txt": return <img src={TXT} alt="txt" width="20px" height="20px" />;
+      case "wav": return <img src={WAV} alt="wav" width="20px" height="20px" />;
+      case "wma": return <img src={WMA} alt="wma" width="20px" height="20px" />;
+      case "xml": return <img src={XML} alt="xml" width="20px" height="20px" />;
+      case "zip": return <img src={ZIP} alt="zip" width="20px" height="20px" />;
+      default: return <img src={Other} alt="text" width="20px" height="20px" />;
+    }
   }
 
   // after the user clicks on a folder
