@@ -3,6 +3,7 @@ import { Button, Cross, PopupContainer, PopupTitle } from '../styled'
 import API from '../utils/API'
 import FileBrowser from './fileBrowser'
 import { FileBrowserRemotes, FileBrowsersContainer, FileBrowserWrapper } from './fileBrowser.styled'
+import assert from 'assert'
 
 class FileBrowserMenu extends Component {
   constructor() {
@@ -41,9 +42,7 @@ class FileBrowserMenu extends Component {
    */
   getFiles = (brIndex, newPath) => {
     return new Promise((resolve, reject) => {
-      if (brIndex !== 0 && brIndex !== 1) return reject(new Error("Invalid browser id: " + brIndex))
-
-      // if (newPath.charAt(0) === "/") newPath = newPath.substring(1)
+      assert(brIndex !== 0 && brIndex !== 1, {brIndex})
 
       if (newPath === "") newPath = "/"
 
@@ -67,7 +66,7 @@ class FileBrowserMenu extends Component {
 
         return resolve()
       })
-      .catch(() => {})
+      .catch(reject)
     })
   }
 
@@ -102,7 +101,7 @@ class FileBrowserMenu extends Component {
   }
 
   renderRemoteButtons = brIndex => {
-    console.assert( brIndex === 0 || brIndex === 1, {brIndex})
+    assert( brIndex === 0 || brIndex === 1, {brIndex})
     return this.props.remotes.map(v => (
       <Button onClick={() => this.setRemote(brIndex, v.name)}> { v.name } </Button>
     ))
