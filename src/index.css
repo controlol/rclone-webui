@@ -1,6 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
 
 html {
+  --scrollbarBG: #CFD8DC;
+  --off-white: #adb2b5;
+  --thumbBG: #90A4AE;
+
   --background-color: #eee;
   --popup-background: #ddd;
   --popup-header: #ccc;
@@ -45,4 +49,23 @@ body {
 
 pre {
   white-space: pre-wrap;
+}
+
+*::-webkit-scrollbar {
+  width: 11px;
+}
+
+body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbarBG);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--thumbBG) ;
+  border-radius: 6px;
+  border: 3px solid var(--scrollbarBG);
 }
