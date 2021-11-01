@@ -10,7 +10,11 @@ class FileBrowserMenu extends Component {
     super()
     this.state = {
       files: [
-        [{}],
+        [{
+          // Name: "heyhey.mp4",
+          // Size: 400000000,
+          // isDir: false
+        }],
         [{}]
       ],
       currentPath: ["", ""],
@@ -42,7 +46,7 @@ class FileBrowserMenu extends Component {
    */
   getFiles = (brIndex, newPath) => {
     return new Promise((resolve, reject) => {
-      assert(brIndex !== 0 && brIndex !== 1, {brIndex})
+      assert(brIndex === 0 || brIndex === 1, {brIndex})
 
       if (newPath === "") newPath = "/"
 
@@ -73,17 +77,20 @@ class FileBrowserMenu extends Component {
   /**
    * 
    * @param {Number} brIndex identify which browser wants to do the action
+   * @param {String} action type of action to be performed
    * @param {String} path dir or file
-   * @param {String} name name of the action to be performed
    */
-  action = (brIndex, path, name) => {
+  doAction = (brIndex, action, path) => {
     return new Promise((resolve, reject) => {
-      switch(name) {
+      switch(action) {
         case "copy":
+          console.log("did copy", path)
           break;
         case "move":
+          console.log("did move", path)
           break;
         case "delete":
+          console.log("did delete", path)
           break;
         default: return reject(new Error("Invalid file action"))
       }
@@ -122,7 +129,7 @@ class FileBrowserMenu extends Component {
             </FileBrowserRemotes>
 
             <FileBrowser
-              action={(path, name) => this.action(0, path, name)}
+              action={(a, p) => this.doAction(0, a, p)}
               files={files[0]}
               updateFiles={path => this.getFiles(0, path)}
               currentPath={currentPath[0]}
