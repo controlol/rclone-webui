@@ -40,6 +40,15 @@ import { Button } from '../styled.js'
 import assert from 'assert'
 import LineLoader from './LineLoader.jsx'
 
+const ROW_HEIGHT = 20
+const ROW_GAP = 8
+const DATA_PADDING = 3
+const DEBOUNCE_THRESHOLD = 100
+
+const OptimisticRow = styled.div`
+  grid-column: 1 / span 3;
+`
+
 const FBContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -213,13 +222,16 @@ class FileBrowser extends Component {
       renderMenu: false,
       cursorX: 0,
       cursorY: 0,
-      clicked: ""
+      clicked: "",
+      from: 0,
+      to: 100
     }
 
     this.backListener = undefined
 
     this.handleInputChange = this.handleInputChange.bind(this)
     this.searchTimeout = undefined
+    this.scrollTimeout = undefined
   }
 
   componentDidMount = () => {
@@ -241,7 +253,7 @@ class FileBrowser extends Component {
         this.props.currentPath.split("/").length < this.state.prevPath.split("/").length ||
         this.props.currentPath === "/"
       ) direction = -1
-      this.setState({ prevPath: this.props.currentPath, transitionFiles: 1 * direction })
+      this.setState({ prevPath: this.props.currentPath, transitionFiles: 1 * direction, from: 0, to: 100 })
 
       delay(5).then(() => this.setState({ transitionFiles: 2 * direction }))
       delay(300).then(() => this.setState({ transitionFiles: 3 * direction, files: this.props.files }))
@@ -399,17 +411,9 @@ class FileBrowser extends Component {
     if (isNew)  files = this.props.files
     else        files = this.state.files
 
+    files = this.getOrderedItems(files).slice(this.state.from, this.state.to)
+
     return files
-    // apply search filter
-    .filter(v => v.Name?.toLowerCase().indexOf(this.state.filter) !== -1)
-    // sort by name
-    .sort((a,b) => this.state.orderBy === "name" ? this.state.orderAscending ? a.Name.localeCompare(b.Name, 'nl', { sensitivity: 'base' }) : b.Name.localeCompare(a.Name, 'nl', { sensitivity: 'base' }) : 0)
-    // // sort by modified date
-    // .sort((a,b) => this.state.orderBy === "modified" ? this.state.orderAscending ? a.modified - b.modified : b.modified - a.modified : 0)
-    // sort by size
-    .sort((a,b) => this.state.orderBy === "size" ? this.state.orderAscending ? a.Size - b.Size : b.Size - a.Size : 0)
-    // // sort folders to top
-    .sort((a,b) => (b.IsDir ? 1 : 0) - (a.IsDir ? 1 : 0))
     .map(v => (
       <Fragment key={v.Name + "file"}>
         { this.renderImage(v.MimeType, v.Name) }
@@ -425,6 +429,34 @@ class FileBrowser extends Component {
     ))
   }
 
+  getOrderedItems = files => {
+    return files
+    // apply search filter
+    .filter(v => v.Name?.toLowerCase().indexOf(this.state.filter) !== -1)
+    // sort by name
+    .sort((a,b) => this.state.orderBy === "name" ? this.state.orderAscending ? a.Name.localeCompare(b.Name, 'nl', { sensitivity: 'base' }) : b.Name.localeCompare(a.Name, 'nl', { sensitivity: 'base' }) : 0)
+    // // sort by modified date
+    // .sort((a,b) => this.state.orderBy === "modified" ? this.state.orderAscending ? a.modified - b.modified : b.modified - a.modified : 0)
+    // sort by size
+    .sort((a,b) => this.state.orderBy === "size" ? this.state.orderAscending ? a.Size - b.Size : b.Size - a.Size : 0)
+    // // sort folders to top
+    .sort((a,b) => (b.IsDir ? 1 : 0) - (a.IsDir ? 1 : 0))
+  }
+
+  handleDebounce = (scrollTop, clientHeight) => {
+    const maxVisibleRows = Math.ceil(clientHeight / (ROW_HEIGHT + ROW_GAP))
+    const from = Math.max(0, Math.floor(scrollTop / (ROW_HEIGHT + ROW_GAP)) - maxVisibleRows * DATA_PADDING)
+    const to = Math.min(this.state.files.length, from + maxVisibleRows * (DATA_PADDING * 2 + 1))
+    console.log({from, to})
+    this.setState({from, to})
+  }
+
+  handleGridScroll = e => {
+    clearTimeout(this.scrollTimeout)
+    const { scrollTop, clientHeight } = e.target
+    this.scrollTimeout = setTimeout(this.handleDebounce, DEBOUNCE_THRESHOLD, scrollTop, clientHeight)
+  }
+
   // render the path the user is currently at
   renderPath = () => 
     path.join(...this.props.currentPath.split("/"))
@@ -434,7 +466,8 @@ class FileBrowser extends Component {
   )
 
   render() {
-    const { transitionFiles } = this.state
+    const { transitionFiles, from, to, orderBy, orderAscending, files } = this.state
+    const rows = Math.max(this.props.files.length, files.length)
 
     return (
       <FBContainer>
@@ -465,11 +498,11 @@ class FileBrowser extends Component {
             <FilenameP onClick={() => this.updateOrder("name")} style={{ position: "relative", cursor: "pointer" }}>
               filename
               {
-                this.state.orderBy === "name" &&
-                <img src={CaretDown} alt={this.state.orderAscending ? "ascending" : "descending"}
+                orderBy === "name" &&
+                <img src={CaretDown} alt={orderAscending ? "ascending" : "descending"}
                 height="20" width="20"
                 style={{
-                  transform: this.state.orderAscending ? "rotateZ(180deg)" : undefined,
+                  transform: orderAscending ? "rotateZ(180deg)" : undefined,
                   position: "absolute",
                   top: "2px",
                   marginLeft: ".5rem"
@@ -480,11 +513,11 @@ class FileBrowser extends Component {
             {/* <ModifiedP onClick={() => this.updateOrder("modified")} style={{ position: "relative", cursor: "pointer" }}>
               modified
               {
-                this.state.orderBy === "modified" &&
-                <img src={CaretDown} alt={this.state.orderAscending ? "ascending" : "descending"}
+                orderBy === "modified" &&
+                <img src={CaretDown} alt={orderAscending ? "ascending" : "descending"}
                 height="20" width="20"
                 style={{
-                  transform: this.state.orderAscending ? "rotateZ(180deg)" : undefined,
+                  transform: orderAscending ? "rotateZ(180deg)" : undefined,
                   position: "absolute",
                   top: "2px",
                   marginLeft: ".5rem"
@@ -495,11 +528,11 @@ class FileBrowser extends Component {
             <SizeP onClick={() => this.updateOrder("size")} style={{ position: "relative", cursor: "pointer" }}>
               size
               {
-                this.state.orderBy === "size" &&
-                <img src={CaretDown} alt={this.state.orderAscending ? "ascending" : "descending"}
+                orderBy === "size" &&
+                <img src={CaretDown} alt={orderAscending ? "ascending" : "descending"}
                 height="20" width="20"
                 style={{
-                  transform: this.state.orderAscending ? "rotateZ(180deg)" : undefined,
+                  transform: orderAscending ? "rotateZ(180deg)" : undefined,
                   position: "absolute",
                   top: "2px",
                   marginLeft: ".5rem"
@@ -510,7 +543,7 @@ class FileBrowser extends Component {
           </GridFileBrowser>
         </BrowserHeader>
 
-        <BrowserWrapper>
+        <BrowserWrapper onScroll={this.handleGridScroll}>
           {
             transitionFiles !== 0 &&
             <GridFileBrowser style={{
@@ -523,7 +556,15 @@ class FileBrowser extends Component {
                   transitionFiles > -2 && transitionFiles < 0 ?
                     "translateX(-100%)" : undefined
             }}>
+              {
+                from > 0 &&
+                <OptimisticRow style={{ height: from * (ROW_HEIGHT + ROW_GAP) }} />
+              }
               { this.renderFiles(true) }
+              {
+                to < rows &&
+                <OptimisticRow style={{ height: (rows - to) * (ROW_HEIGHT + ROW_GAP) }} />
+              }
             </GridFileBrowser>
           }
 
@@ -537,7 +578,15 @@ class FileBrowser extends Component {
               transitionFiles === 3 || transitionFiles === -3 ?
                 "none" : undefined
           }}>
+            {
+              from > 0 &&
+              <OptimisticRow style={{ height: from * (ROW_HEIGHT + ROW_GAP) }} />
+            }
             { this.renderFiles() }
+            {
+              to < rows &&
+              <OptimisticRow style={{ height: (rows - to) * (ROW_HEIGHT + ROW_GAP) }} />
+            }
           </GridFileBrowser>
         </BrowserWrapper>
       </FBContainer>
