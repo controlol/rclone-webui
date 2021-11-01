@@ -249,7 +249,7 @@ class App extends Component {
 
   renderFileBrowser = () => {
     if (this.state.renderBrowser) return (
-      <FileBrowserMenu close={() => this.setState({ renderBrowser: false })} />
+      <FileBrowserMenu close={() => this.setState({ renderBrowser: false })} remotes={this.state.remotes} />
     )
 
     return <Fragment />
@@ -387,10 +387,10 @@ class App extends Component {
               <p> { this.renderLiveSpeed() } </p>
 
               <p> Active transfers </p>
-              <p> { transfers + (transfers === 1 ? " file" : " files" )} </p>
+              <p> { (transfers ? transfers : 0) + (transfers === 1 ? " file" : " files" )} </p>
 
               <p> Total transfered files </p>
-              <p> { totalTransfers + (totalTransfers === 1 ? " file" : " files" )} </p>
+              <p> { (totalTransfers ? totalTransfers : 0) + (totalTransfers === 1 ? " file" : " files" )} </p>
 
               <p> Total transferred data </p>
               <p> { bytesToString(bytes, {}) } </p>
