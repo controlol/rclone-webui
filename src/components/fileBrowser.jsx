@@ -38,12 +38,14 @@ import CaretDown from '../assets/icons/caretDown.svg'
 import bytesToString from '../utils/bytestring.js'
 import { Button } from '../styled.js'
 import assert from 'assert'
+import LineLoader from './LineLoader.jsx'
 
 const FBContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
+  position: relative;
 `
 
 // bunch of styled components
@@ -331,7 +333,6 @@ class FileBrowser extends Component {
     currentPath.shift()
 
     if (index !== currentPath.length - 1) {
-      console.log("changing path", index, currentPath.length)
 
       currentPath.length = index + 1
       this.props.updateFiles(currentPath.join("/"))
@@ -386,8 +387,6 @@ class FileBrowser extends Component {
    * always show folders on top
    */
   renderFiles = (isNew) => {
-    // console.log(this.state.files)
-
     let files = [{}]
     if (isNew)  files = this.props.files
     else        files = this.state.files
@@ -433,6 +432,9 @@ class FileBrowser extends Component {
       <FBContainer>
         {
           this.renderMenu()
+        }
+        {
+          this.props.loading?<LineLoader/>:""
         }
         <BrowserHeader>
           <div style={{
