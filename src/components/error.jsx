@@ -15,7 +15,7 @@ export const ErrorContainer = styled.div`
 `
 
 const Error = ({ errorCount, lastError }) => {
-  const errorCountString = errorCount + ( errorCount === 1 ? " Error" : " Errors" )
+  const errorCountString = (errorCount ? errorCount : 0) + ( errorCount === 1 ? " Error" : " Errors" )
 
   const imageSource = errorCount > 0 ? ErrorCircle : CheckCircle
 
