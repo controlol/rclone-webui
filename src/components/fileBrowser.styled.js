@@ -25,7 +25,7 @@ export const Label = styled.label`
 export const FileBrowsersContainer = styled.div`
   display: flex;
   gap: 0 1rem;
-  height: 100%;
+  height: calc(100% - 7rem);
 `
 
 export const FileBrowserWrapper = styled.div`
