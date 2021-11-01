@@ -1,7 +1,8 @@
 import { Component } from 'react'
-import { Cross, PopupContainer, PopupTitle } from '../styled'
+import { Button, Cross, PopupContainer, PopupTitle } from '../styled'
 import API from '../utils/API'
 import FileBrowser from './fileBrowser'
+import { FileBrowserRemotes, FileBrowsersContainer, FileBrowserWrapper } from './fileBrowser.styled'
 
 class FileBrowserMenu extends Component {
   constructor() {
@@ -36,11 +37,11 @@ class FileBrowserMenu extends Component {
 
   /**
    * 
-   * @param {Number} browser identify which browser wants new files
+   * @param {Number} brIndex identify which browser wants new files
    */
-  getFiles = (browser, newPath) => {
+  getFiles = (brIndex, newPath) => {
     return new Promise((resolve, reject) => {
-      if (browser !== 0 && browser !== 1) return reject(new Error("Invalid browser id"))
+      if (brIndex !== 0 && brIndex !== 1) return reject(new Error("Invalid browser id: " + brIndex))
 
       // if (newPath.charAt(0) === "/") newPath = newPath.substring(1)
 
@@ -48,12 +49,12 @@ class FileBrowserMenu extends Component {
 
       let { browserFs } = this.state
       let currentPath = Object.assign({}, this.state.currentPath)
-      currentPath[browser] = newPath
+      currentPath[brIndex] = newPath
 
       return API.request({
         url: "/operations/list",
         data: {
-          fs: browserFs[browser] + ":",
+          fs: browserFs[brIndex] + ":",
           remote: newPath.charAt(0) === "/" ? newPath.substring(1) : newPath
         }
       })
@@ -61,21 +62,22 @@ class FileBrowserMenu extends Component {
         if (typeof response.data.list !== "object") return reject(new Error("Invalid response"))
 
         let { files } = this.state
-        files[browser] = response.data.list
+        files[brIndex] = response.data.list
         this.setState({ files, currentPath, errMessage: "" })
 
         return resolve()
       })
+      .catch(() => {})
     })
   }
 
   /**
    * 
-   * @param {Number} browser identify which browser wants to do the action
+   * @param {Number} brIndex identify which browser wants to do the action
    * @param {String} path dir or file
    * @param {String} name name of the action to be performed
    */
-  action = (browser, path, name) => {
+  action = (brIndex, path, name) => {
     return new Promise((resolve, reject) => {
       switch(name) {
         case "copy":
@@ -89,20 +91,45 @@ class FileBrowserMenu extends Component {
     })
   }
 
+  setRemote = (brIndex, remoteName) => {
+    let { browserFs, currentPath } = this.state
+    browserFs[brIndex] = remoteName
+
+    this.setState({ browserFs, currentPath })
+    setTimeout(() => {
+      this.getFiles(brIndex, "/")
+    }, 50)
+  }
+
+  renderRemoteButtons = brIndex => {
+    console.assert( brIndex === 0 || brIndex === 1, {brIndex})
+    return this.props.remotes.map(v => (
+      <Button onClick={() => this.setRemote(brIndex, v.name)}> { v.name } </Button>
+    ))
+  }
+
   render = () => {
+    const { files, currentPath } = this.state
 
     return (
       <PopupContainer>
         <PopupTitle> Browser </PopupTitle>
         <Cross onClick={this.props.close}> Close </Cross>
 
-        <FileBrowser
-          id={0}
-          action={(path, name) => this.action(0, path, name)}
-          files={this.state.files[0]}
-          updateFiles={path => this.getFiles(0, path)}
-          currentPath={this.state.currentPath[0]}
-        />
+        <FileBrowsersContainer>
+          <FileBrowserWrapper>
+            <FileBrowserRemotes>
+              { this.renderRemoteButtons(0) }
+            </FileBrowserRemotes>
+
+            <FileBrowser
+              action={(path, name) => this.action(0, path, name)}
+              files={files[0]}
+              updateFiles={path => this.getFiles(0, path)}
+              currentPath={currentPath[0]}
+            />
+          </FileBrowserWrapper>
+        </FileBrowsersContainer>
       </PopupContainer>
     )
   }
