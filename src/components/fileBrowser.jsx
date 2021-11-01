@@ -337,11 +337,8 @@ class FileBrowser extends Component {
   goToPath = index => {
     let currentPath = this.props.currentPath.split("/")
 
-    currentPath.shift()
-
-    if (index !== currentPath.length - 1) {
-
-      currentPath.length = index + 1
+    if (index !== currentPath.length - 2) {
+      currentPath.length = index + 2
       this.props.updateFiles(currentPath.join("/"))
 
       this.setState({filter: ""})
