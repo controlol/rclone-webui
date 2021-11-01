@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import React, { Component } from 'react'
 import { Button, Cross, PopupContainer, PopupTitle } from '../styled'
 import API from '../utils/API'
 import FileBrowser from './fileBrowser'
@@ -19,6 +19,7 @@ class FileBrowserMenu extends Component {
       ],
       currentPath: ["", ""],
       browserFs: ["", ""],
+      loading: [false, false],
       errMessage: "",
       dualBrowser: false
     }
@@ -48,6 +49,10 @@ class FileBrowserMenu extends Component {
     return new Promise((resolve, reject) => {
       assert(brIndex === 0 || brIndex === 1, {brIndex})
 
+      let { loading } = this.state
+      loading[brIndex] = true
+      this.setState({ loading })
+
       if (newPath === "") newPath = "/"
 
       let { browserFs } = this.state
@@ -64,13 +69,21 @@ class FileBrowserMenu extends Component {
       .then(response => {
         if (typeof response.data.list !== "object") return reject(new Error("Invalid response"))
 
+        if (response.data.list.length > 100) response.data.list.length = 100
         let { files } = this.state
         files[brIndex] = response.data.list
-        this.setState({ files, currentPath, errMessage: "" })
+        loading[brIndex] = false
+        this.setState({ files, currentPath, errMessage: "", loading })
 
         return resolve()
       })
-      .catch(reject)
+      .catch(() => {
+        let { loading } = this.state
+        loading[brIndex] = false
+        this.setState({ loading })
+
+        return reject()
+      })
     })
   }
 
@@ -110,12 +123,12 @@ class FileBrowserMenu extends Component {
   renderRemoteButtons = brIndex => {
     assert( brIndex === 0 || brIndex === 1, {brIndex})
     return this.props.remotes.map(v => (
-      <Button onClick={() => this.setRemote(brIndex, v.name)}> { v.name } </Button>
+      <Button key={v.name} onClick={() => this.setRemote(brIndex, v.name)}> { v.name } </Button>
     ))
   }
 
   render = () => {
-    const { files, currentPath } = this.state
+    const { files, currentPath, loading } = this.state
 
     return (
       <PopupContainer>
@@ -133,6 +146,7 @@ class FileBrowserMenu extends Component {
               files={files[0]}
               updateFiles={path => this.getFiles(0, path)}
               currentPath={currentPath[0]}
+              loading={loading[0]}
             />
           </FileBrowserWrapper>
         </FileBrowsersContainer>
@@ -141,4 +155,8 @@ class FileBrowserMenu extends Component {
   }
 }
 
-export default FileBrowserMenu
+const compareProps = (prevProps, nextProps) => {
+  return true
+}
+
+export default React.memo(FileBrowserMenu, compareProps)
