@@ -7,6 +7,7 @@
 
 ![GitHub](https://img.shields.io/github/license/controlol/rclone-webui)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/controlol/rclone-webui/Semantic%20Release?label=Build%20Release)
+![GitHub milestone](https://img.shields.io/github/milestones/progress/controlol/rclone-webui/3?label=Milestone%20V1.1)
 ![GitHub top language](https://img.shields.io/github/languages/top/controlol/rclone-webui)
 
 ## Description
