@@ -48,7 +48,7 @@ const DATA_PADDING = 3
 const DEBOUNCE_THRESHOLD = 100
 
 const OptimisticRow = styled.div`
-  grid-column: 1 / span 3;
+  grid-column: 1 / span ${({shownColumns}) => Math.min(4, shownColumns !== null ? Object.values(shownColumns).filter(v => v === true).length + 2 : 2)};
 `
 
 const FBContainer = styled.div`
@@ -92,13 +92,6 @@ const GridFileBrowser = styled.div`
   width: 100%;
   transition: transform .3s;
   padding: .5rem;
-
-  p:nth-child(4n+3) {
-    display: ${({shownColumns}) => shownColumns.datetime || shownColumns.date ? "block" : "none" }
-  }
-  p:nth-child(4n+4) {
-    display: ${({shownColumns}) => shownColumns.size ? "block" : "none" }
-  }
 `
 
 const BrowserHeader = styled.div`
@@ -113,6 +106,23 @@ const BrowserHeader = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+`
+
+const BrowserHeaderDiv = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0 .25rem;
+
+  @media only screen and (max-width: 800px) {
+    &:nth-child(1) {
+      padding: .5rem 0 0 .5rem;
+    }
+
+    &:nth-child(2) {
+      width: 100%;
+      padding-left: .5rem;
+    }
+  }
 `
 
 const EllipsisP = styled.p`
@@ -144,52 +154,33 @@ const DirNameP = styled(FilenameP)`
 `
 
 const ModifiedP = styled(EllipsisP)`
-
+  display: ${({shownColumns}) => shownColumns.datetime || shownColumns.date ? "block" : "none" };
 `
 
 const SizeP = styled.p`
-
+  display: ${({shownColumns}) => shownColumns.size ? "block" : "none" };
 `
 
 const SearchLabel = styled(Label)`
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 1200px) {
     display: none;
-  }
-  @media screen and (min-width: 800px) {
-    display: none;
-  }
-  @media screen and (min-width: 1100px) {
-    display: initial;
   }
 `
 
 const BrowseImage = styled.img`
   cursor: pointer;
 
-  @media screen and (max-width: 600px) {
-    display: none;
-  }
-
-  @media screen and (min-width: 800px) {
-    display: none;
-  }
-  @media screen and (min-width: 1100px) {
-    display: initial;
+  @media screen and (max-width: 800px) {
+    width: 30px;
+    height: 30px;
   }
 `
 const SearchInput = styled(Input)`
   width: 15rem;
-  /* grid-column: 4 / 6;
 
-  @media screen and (max-width: 1099px) {
-    grid-column: 3 / 5;
+  @media only screen and (max-width: 800px) {
+    width: 100%;
   }
-  @media screen and (max-width: 800px) {
-    grid-column: 4 / 6;
-  }
-  @media screen and (max-width: 600px) {
-    grid-column: 3 / 4;
-  } */
 `
 
 const FileSettingsPopup = styled.div`
@@ -504,6 +495,8 @@ class FileBrowser extends Component {
     if (isNext)  files = this.props.files
     else        files = this.state.files
 
+    const { shownColumns } = this.state
+
     files = this.getOrderedItems(files).slice(this.state.from, this.state.to)
 
     return files
@@ -516,8 +509,8 @@ class FileBrowser extends Component {
             :
             <FilenameP onContextMenu={this.openMenu}>{ v.Name }</FilenameP>
         }
-        <ModifiedP> { v.ModTime?.toLocaleString() } </ModifiedP>
-        <SizeP> { !v.IsDir ? bytesToString(v.Size, {}) : "" } </SizeP>
+        <ModifiedP shownColumns={shownColumns}> { v.ModTime?.toLocaleString() } </ModifiedP>
+        <SizeP shownColumns={shownColumns}> { !v.IsDir ? bytesToString(v.Size, {}) : "" } </SizeP>
     </Fragment>
     ))
   }
@@ -587,25 +580,16 @@ class FileBrowser extends Component {
           this.props.loading ? <LineLoader/> : ""
         }
         <BrowserHeader>
-          <div style={{
-            // gridColumn: "1 / span 2",
-            display: "flex",
-            alignItems: "center",
-            gap: ".5rem"
-          }}>
-            <BrowseImage src={Back} alt="up directory" width="40px" height="40px" onClick={this.previousDirectory} />
-            <BrowseImage src={Home} alt="root directory" width="40px" height="40px" onClick={this.rootDirectory} />
+          <BrowserHeaderDiv>
+            <BrowseImage src={Back} alt="up directory" width="35" height="35" onClick={this.previousDirectory} />
+            <BrowseImage src={Home} alt="root directory" width="35" height="35" onClick={this.rootDirectory} />
             <p> { this.props.currentPath !== "/" ? this.renderPath() : "/" } </p>
-          </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '.25rem'
-          }}>
+          </BrowserHeaderDiv>
+          <BrowserHeaderDiv>
             <SearchLabel htmlFor="filterFiles" style={{ textAlign: "end" }} > Search </SearchLabel>
             <SearchInput name="filter" id="filterFiles" type="text" placeholder="search" initialValue="" autoComplete="off" onChange={this.handleInputChange} />
             <img src={SettingsCog} alt="settings" width="25" height="25" onClick={this.openFileSettings} />
-          </div>
+          </BrowserHeaderDiv>
 
           <GridFileBrowser shownColumns={shownColumns}>
             <span/>
@@ -624,7 +608,7 @@ class FileBrowser extends Component {
                   />
               }
             </FilenameP>
-            <ModifiedP onClick={() => this.updateOrder("modified")} style={{ position: "relative", cursor: "pointer" }}>
+            <ModifiedP shownColumns={shownColumns} onClick={() => this.updateOrder("modified")} style={{ position: "relative", cursor: "pointer" }}>
               modified
               {
                 orderBy === "modified" &&
@@ -639,7 +623,7 @@ class FileBrowser extends Component {
                   />
               }
             </ModifiedP>
-            <SizeP onClick={() => this.updateOrder("size")} style={{ position: "relative", cursor: "pointer" }}>
+            <SizeP shownColumns={shownColumns} onClick={() => this.updateOrder("size")} style={{ position: "relative", cursor: "pointer" }}>
               size
               {
                 orderBy === "size" &&
@@ -672,12 +656,12 @@ class FileBrowser extends Component {
             }}>
               {
                 from > 0 &&
-                <OptimisticRow style={{ height: from * (ROW_HEIGHT + ROW_GAP) }} />
+                <OptimisticRow shownColumns={shownColumns} style={{ height: from * (ROW_HEIGHT + ROW_GAP) }} />
               }
               { this.renderFiles(true) }
               {
                 to < rows &&
-                <OptimisticRow style={{ height: (rows - to) * (ROW_HEIGHT + ROW_GAP) }} />
+                <OptimisticRow shownColumns={shownColumns} style={{ height: (rows - to) * (ROW_HEIGHT + ROW_GAP) }} />
               }
             </GridFileBrowser>
           }
@@ -694,12 +678,12 @@ class FileBrowser extends Component {
           }}>
             {
               from > 0 &&
-              <OptimisticRow style={{ height: from * (ROW_HEIGHT + ROW_GAP) }} />
+              <OptimisticRow shownColumns={shownColumns} style={{ height: from * (ROW_HEIGHT + ROW_GAP) }} />
             }
             { this.renderFiles() }
             {
               to < rows &&
-              <OptimisticRow style={{ height: (rows - to) * (ROW_HEIGHT + ROW_GAP) }} />
+              <OptimisticRow shownColumns={shownColumns} style={{ height: (rows - to) * (ROW_HEIGHT + ROW_GAP) }} />
             }
           </GridFileBrowser>
         </BrowserWrapper>
