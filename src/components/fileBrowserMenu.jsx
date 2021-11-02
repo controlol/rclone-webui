@@ -69,6 +69,8 @@ class FileBrowserMenu extends Component {
       .then(response => {
         if (typeof response.data.list !== "object") return reject(new Error("Invalid response"))
 
+        response.data.list.forEach(v => v.ModTime = new Date(v.ModTime))
+
         let { files } = this.state
         files[brIndex] = response.data.list
         loading[brIndex] = false

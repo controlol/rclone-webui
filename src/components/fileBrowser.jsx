@@ -84,7 +84,7 @@ const BrowserWrapper = styled.div`
 
 const GridFileBrowser = styled.div`
   display: grid;
-  grid-template-columns: 1px 1fr 6rem;
+  grid-template-columns: 1px 1fr 10rem 6rem;
   align-items: center;
   gap: .5rem 1.5rem;
   width: 100%;
@@ -144,21 +144,21 @@ const DirNameP = styled(FilenameP)`
   cursor: pointer;
 `
 
-// const ModifiedP = styled(EllipsisP)`
-//   @media screen and (max-width: 1100px) {
-//     display: none;
-//   }
+const ModifiedP = styled(EllipsisP)`
+  @media screen and (max-width: 1100px) {
+    display: none;
+  }
 
-//   @media screen and (max-width: 800px) {
-//     display: initial;
-//   }
-//   @media screen and (max-width: 600px) {
-//     display: none;
-//   }
-//   @media screen and (min-width: 1100px) {
-//     display: initial;
-//   }
-// `
+  @media screen and (max-width: 800px) {
+    display: initial;
+  }
+  @media screen and (max-width: 600px) {
+    display: none;
+  }
+  @media screen and (min-width: 1100px) {
+    display: initial;
+  }
+`
 
 const SizeP = styled.p`
   @media screen and (max-width: 600px) {
@@ -434,7 +434,7 @@ class FileBrowser extends Component {
             :
             <FilenameP onContextMenu={this.openMenu}>{ v.Name }</FilenameP>
         }
-        {/* <ModifiedP> { v.modified.toLocaleString() } </ModifiedP> */}
+        <ModifiedP> { v.ModTime?.toLocaleString() } </ModifiedP>
         <SizeP> { !v.IsDir ? bytesToString(v.Size, {}) : "" } </SizeP>
     </Fragment>
     ))
@@ -452,7 +452,7 @@ class FileBrowser extends Component {
     // sort by name
     .sort((a,b) => this.state.orderBy === "name" ? this.state.orderAscending ? a.Name.localeCompare(b.Name, 'nl', { sensitivity: 'base' }) : b.Name.localeCompare(a.Name, 'nl', { sensitivity: 'base' }) : 0)
     // // sort by modified date
-    // .sort((a,b) => this.state.orderBy === "modified" ? this.state.orderAscending ? a.modified - b.modified : b.modified - a.modified : 0)
+    .sort((a,b) => this.state.orderBy === "modified" ? this.state.orderAscending ? a.ModTime - b.ModTime : b.ModTime - a.ModTime : 0)
     // sort by size
     .sort((a,b) => this.state.orderBy === "size" ? this.state.orderAscending ? a.Size - b.Size : b.Size - a.Size : 0)
     // // sort folders to top
@@ -534,7 +534,7 @@ class FileBrowser extends Component {
                   />
               }
             </FilenameP>
-            {/* <ModifiedP onClick={() => this.updateOrder("modified")} style={{ position: "relative", cursor: "pointer" }}>
+            <ModifiedP onClick={() => this.updateOrder("modified")} style={{ position: "relative", cursor: "pointer" }}>
               modified
               {
                 orderBy === "modified" &&
@@ -548,7 +548,7 @@ class FileBrowser extends Component {
                   }}
                   />
               }
-            </ModifiedP> */}
+            </ModifiedP>
             <SizeP onClick={() => this.updateOrder("size")} style={{ position: "relative", cursor: "pointer" }}>
               size
               {
