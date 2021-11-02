@@ -26,6 +26,10 @@ export const FileBrowsersContainer = styled.div`
   display: flex;
   gap: 0 1rem;
   height: calc(94vh - 9rem);
+
+  @media only screen and (max-width: 800px) {
+    height: calc(100vh - 9rem);
+  }
 `
 
 export const FileBrowserWrapper = styled.div`
