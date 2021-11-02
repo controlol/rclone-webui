@@ -285,7 +285,7 @@ class App extends Component {
       >
         <p> {v.name} </p>
         <p> {v.type} </p>
-        <ReactTooltip id={"size"+v.MountPoint} place="left" type="info" effect="solid" />
+        <ReactTooltip id={"size"+v.MountPoint} place="left" type="info" effect="solid" globalEventOff="click" />
       </InfosRow>
     ))
   }
