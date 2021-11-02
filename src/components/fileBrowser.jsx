@@ -184,19 +184,21 @@ const SearchInput = styled(Input)`
 `
 
 const FileSettingsPopup = styled.div`
-  min-width: 20rem;
-  min-height: 20rem;
+  min-width: 15rem;
   background-color: var(--button-color);
   position: fixed;
-  top: 10rem;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   z-index: 900;
+  padding: 1rem;
+  border-radius: .3rem;
+  box-shadow: 0 0 .5rem rgba(0,0,0,.3);
 `
 
 const FileSettingsHeader = styled.h3`
   text-align: center;
-  padding: 1rem 0;
+  margin-bottom: 1rem;
 `
 
 const FileColumnSettingsContainer = styled.form`
@@ -509,7 +511,7 @@ class FileBrowser extends Component {
             :
             <FilenameP onContextMenu={this.openMenu}>{ v.Name }</FilenameP>
         }
-        <ModifiedP shownColumns={shownColumns}> { v.ModTime?.toLocaleString() } </ModifiedP>
+        <ModifiedP shownColumns={shownColumns}> { shownColumns.datetime ? v.ModTime?.toLocaleString() : v.ModTime?.toLocaleDateString() } </ModifiedP>
         <SizeP shownColumns={shownColumns}> { !v.IsDir ? bytesToString(v.Size, {}) : "" } </SizeP>
     </Fragment>
     ))
