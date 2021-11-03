@@ -93,4 +93,5 @@ export const RemoteButton = styled(Button)`
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
+  background-color: ${({active}) => active ? "var(--button-hover)" : "var(--button-color)"}
 `

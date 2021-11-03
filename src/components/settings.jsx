@@ -30,7 +30,7 @@ class Settings extends Component {
       "--text-color": "#fff",
       "--text-hover": "#eee",
       "--button-color": "#111",
-      "--button-hover": "#181818"
+      "--button-hover": "#1a1a1a"
     }
   }
 
