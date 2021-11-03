@@ -238,9 +238,6 @@ class App extends Component {
     if (browserFs === null) browserFs = ["", ""]
     if (currentPath === null) currentPath = ["/", "/"]
 
-    browserFs[0] = name
-    currentPath[0] = "/"
-
     sessionStorage.setItem("browserFs", JSON.stringify(browserFs))
     sessionStorage.setItem("currentPath", JSON.stringify(currentPath))
 
