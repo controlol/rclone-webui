@@ -246,6 +246,11 @@ class App extends Component {
     if (browserFs === null) browserFs = ["", ""]
     if (currentPath === null) currentPath = ["/", "/"]
 
+    if (name) {
+      browserFs[0] = name
+      currentPath[0] = name
+    }
+
     sessionStorage.setItem("browserFs", JSON.stringify(browserFs))
     sessionStorage.setItem("currentPath", JSON.stringify(currentPath))
 
@@ -288,8 +293,8 @@ class App extends Component {
         data-for={"size"+v.MountPoint}
         onClick={() => this.openBrowser(v.name)}
       >
-        <p> {v.name} </p>
-        <p> {v.type} </p>
+        <p>{v.name}</p>
+        <p>{v.type}</p>
         {/* add EDIT button */}
         <ReactTooltip id={"size"+v.MountPoint} place="left" type="info" effect="solid" globalEventOff="click" />
       </InfosRow>
@@ -368,7 +373,7 @@ class App extends Component {
           </StatusContainer>
         </HeaderContainer>
 
-        <Navigation info={{ errors, lastError }} />
+        <Navigation info={{ errors, lastError }} openBrowser={this.openBrowser} />
 
         <Container>
           <ItemsContainer>

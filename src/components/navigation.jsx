@@ -1,19 +1,33 @@
 import styled from 'styled-components'
-import { Container } from '../styled'
+import { Button as normalButton, Container } from '../styled'
 
 import Error from './error'
+import BrowserSingle from '../assets/icons/browserSingle.svg'
 
 const NavigationContainer = styled(Container)`
+  gap: 0 .5rem;
+
   @media only screen and (max-width: 800px) {
     justify-content: center;
   }
 `
+
+const Button = styled(normalButton)`
+  display: flex;
+  align-items: center;
+  gap: 0 .3rem;
+`
+
 const Navigation = ({ info }) => {
   const { errors, lastError } = info
 
   return (
     <NavigationContainer>
       <Error errorCount={errors} lastError={lastError} />
+      <Button>
+        <img src={BrowserSingle} alt="file browser" width="18" height="18" />
+        File Browser
+      </Button>
     </NavigationContainer>
   )
 }
