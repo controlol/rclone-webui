@@ -108,20 +108,28 @@ class App extends Component {
    * also updates the favicon
    */
   checkApiEndpoint = () => {
-    if (API.getEndpointStatus() !== this.state.endPointAvailable) {
+    const status = API.getEndpointStatus()
+    if (status !== this.state.endPointAvailable) {
       this.setState({ endPointAvailable: !this.state.endPointAvailable })
 
       const link = document.querySelectorAll("link[rel~='icon']");
 
       link.forEach(v => {
         let segments = v.href.split(".")
-        if (this.state.endPointAvailable) {
+        if (status) {
           segments[0] = segments[0].substring(0, segments[0].length - 3)
         } else {
           segments[0] += "-gs"
         }
         v.href = segments.join(".")
       })
+
+      // get info after api recovers
+      if (status) {
+        this.fetchRemotes()
+        this.fetchMounts()
+        this.fetchVersionInfo()
+      }
     }
   }
 
@@ -282,6 +290,7 @@ class App extends Component {
       >
         <p> {v.name} </p>
         <p> {v.type} </p>
+        {/* add EDIT button */}
         <ReactTooltip id={"size"+v.MountPoint} place="left" type="info" effect="solid" globalEventOff="click" />
       </InfosRow>
     ))
@@ -296,6 +305,7 @@ class App extends Component {
       <Fragment key={v.MountPoint} >
         <p> {v.Fs} </p>
         <p> {v.MountPoint} </p>
+        {/* add DELETE button */}
       </Fragment>
     ))
   }
@@ -394,12 +404,12 @@ class App extends Component {
             </InfosWrapper>
 
             <InfosWrapper style={{ minHeight: "6rem" }}>
-              <h2> Remotes </h2>
+              <h2> Remotes </h2> {/* add NEW button */}
               { this.renderRemotes() }
             </InfosWrapper>
 
             <InfosWrapper style={{ minHeight: "4.5rem" }}>
-              <h2> Mounts </h2>
+              <h2> Mounts </h2> {/* add NEW button */}
               { this.renderMounts() }
             </InfosWrapper>
 
