@@ -254,6 +254,8 @@ class FileBrowser extends Component {
 
   // change the way files should be ordered
   updateOrder = orderBy => {
+    if (this.props.menuOpen || this.state.showMenu) return;
+
     if (this.state.orderBy === orderBy) {
       this.setState({ orderAscending: !this.state.orderAscending })
     } else {
@@ -299,7 +301,7 @@ class FileBrowser extends Component {
 
   // after the user clicks on a folder
   updatePath = (isDir, name) => {
-    if (isDir) {
+    if (isDir && !(this.props.menuOpen || this.state.showMenu)) {
       const newPath = path.join(this.props.currentPath, name)
 
       this.props.updateFiles(newPath)
@@ -309,6 +311,8 @@ class FileBrowser extends Component {
 
   // after the user clicks on the back button
   previousDirectory = () => {
+    if (this.props.menuOpen || this.state.showMenu) return;
+
     let currentPath = this.props.currentPath.split("/")
     currentPath.pop()
 
@@ -318,12 +322,16 @@ class FileBrowser extends Component {
 
   // after the user click on the home button
   rootDirectory = () => {
+    if (this.props.menuOpen || this.state.showMenu) return;
+
     this.props.updateFiles("/")
     this.setState({filter: ""})
   }
 
   // after the user clicks on a path piece
   goToPath = index => {
+    if (this.props.menuOpen || this.state.showMenu) return;
+
     let currentPath = this.props.currentPath.split("/")
 
     if (index !== currentPath.length - 2) {
