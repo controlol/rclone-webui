@@ -57,6 +57,8 @@ const FBContainer = styled.div`
   width: 100%;
   height: inherit;
   position: relative;
+  border-radius: .3rem;
+  box-shadow: ${({active}) => active ? "0 0 6px -3px var(--tertiary-color)" : ""};
 `
 
 // bunch of styled components
@@ -67,7 +69,7 @@ const BrowserWrapper = styled.div`
   overflow-y: scroll;
   position: relative;
   background: var(--box-radial-gradient);
-  border-radius: 0 0 .3em .3em;
+  border-radius: 0 0 .3rem .3rem;
   user-select: none;
 
   &::-webkit-scrollbar {
@@ -112,6 +114,7 @@ const BrowserHeaderDiv = styled.div`
   display: flex;
   align-items: center;
   gap: 0 .25rem;
+  padding-left: .5rem;
 
   @media only screen and (max-width: 800px) {
     &:nth-child(1) {
@@ -169,11 +172,6 @@ const SearchLabel = styled(Label)`
 
 const BrowseImage = styled.img`
   cursor: pointer;
-
-  @media screen and (max-width: 800px) {
-    width: 30px;
-    height: 30px;
-  }
 `
 const SearchInput = styled(Input)`
   width: 15rem;
@@ -571,7 +569,7 @@ class FileBrowser extends Component {
     const rows = Math.max(this.props.files.length, files.length)
 
     return (
-      <FBContainer>
+      <FBContainer active={this.props.active} onClick={this.props.setActive}>
         {
           this.renderMenu()
         }
@@ -583,8 +581,8 @@ class FileBrowser extends Component {
         }
         <BrowserHeader>
           <BrowserHeaderDiv>
-            <BrowseImage src={Back} alt="up directory" width="35" height="35" onClick={this.previousDirectory} />
-            <BrowseImage src={Home} alt="root directory" width="35" height="35" onClick={this.rootDirectory} />
+            <BrowseImage src={Back} alt="up directory" width="25" height="25" onClick={this.previousDirectory} />
+            <BrowseImage src={Home} alt="root directory" width="25" height="25" onClick={this.rootDirectory} />
             <p> { this.props.currentPath !== "/" ? this.renderPath() : "/" } </p>
           </BrowserHeaderDiv>
           <BrowserHeaderDiv>
@@ -600,11 +598,11 @@ class FileBrowser extends Component {
               {
                 orderBy === "name" &&
                 <img src={CaretDown} alt={orderAscending ? "ascending" : "descending"}
-                height="20" width="20"
+                height="12" width="12"
                 style={{
                   transform: orderAscending ? "rotateZ(180deg)" : undefined,
                   position: "absolute",
-                  top: "2px",
+                  top: 6,
                   marginLeft: ".5rem"
                   }}
                   />
@@ -615,11 +613,11 @@ class FileBrowser extends Component {
               {
                 orderBy === "modified" &&
                 <img src={CaretDown} alt={orderAscending ? "ascending" : "descending"}
-                height="20" width="20"
+                height="12" width="12"
                 style={{
                   transform: orderAscending ? "rotateZ(180deg)" : undefined,
                   position: "absolute",
-                  top: "2px",
+                  top: 6,
                   marginLeft: ".5rem"
                   }}
                   />
@@ -630,11 +628,11 @@ class FileBrowser extends Component {
               {
                 orderBy === "size" &&
                 <img src={CaretDown} alt={orderAscending ? "ascending" : "descending"}
-                height="20" width="20"
+                height="12" width="12"
                 style={{
                   transform: orderAscending ? "rotateZ(180deg)" : undefined,
                   position: "absolute",
-                  top: "2px",
+                  top: 6,
                   marginLeft: ".5rem"
                   }}
                   />

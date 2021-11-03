@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { Button } from '../styled'
 
 export const Input = styled.input`
   width: 100%;
@@ -24,18 +25,18 @@ export const Label = styled.label`
 
 export const FileBrowsersContainer = styled.div`
   display: flex;
-  gap: 0 1rem;
+  flex-direction: column;
+  gap: .5rem 0;
   height: calc(94vh - 9rem);
-
+  
   @media only screen and (max-width: 800px) {
     height: calc(100vh - 9rem);
   }
-`
+  `
 
 export const FileBrowserWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: .5rem 0;
+  gap: 0 1rem;
   width: 100%;
   height: inherit;
 `
@@ -44,4 +45,17 @@ export const FileBrowserRemotes = styled.div`
   display: flex;
   gap: .5rem;
   justify-content: flex-start;
+`
+
+export const FileBrowserSettings = styled.div`
+  display: flex;
+  gap: .5rem;
+  flex-grow: 1;
+  justify-content: flex-end;
+`
+
+export const BrowserSettingButton = styled(Button)`
+  padding: .5rem;
+  display: flex;
+  align-items: center;
 `
