@@ -246,7 +246,7 @@ class App extends Component {
     if (browserFs === null) browserFs = ["", ""]
     if (currentPath === null) currentPath = ["/", "/"]
 
-    if (name) {
+    if (typeof name === "string") {
       browserFs[0] = name
       currentPath[0] = name
     }
@@ -353,7 +353,7 @@ class App extends Component {
 
   render = () => {
     const { stats, version, endPointAvailable } = this.state
-    const { elapsedTime, transfers, totalTransfers, bytes, errors, lastError } = stats
+    const { elapsedTime, transfers, bytes, errors, lastError, transferring } = stats
 
     return (
       <Fragment>
@@ -399,10 +399,10 @@ class App extends Component {
               <p> { this.renderLiveSpeed() } </p>
 
               <p> Active transfers </p>
-              <p> { (transfers ? transfers : 0) + (transfers === 1 ? " file" : " files" )} </p>
+              <p> { (transferring?.length ? transferring.length : 0) + (transferring?.length === 1 ? " file" : " files" )} </p>
 
               <p> Total transfered files </p>
-              <p> { (totalTransfers ? totalTransfers : 0) + (totalTransfers === 1 ? " file" : " files" )} </p>
+              <p> { (transfers ? transfers : 0) + (transfers === 1 ? " file" : " files" )} </p>
 
               <p> Total transferred data </p>
               <p> { bytesToString(bytes, {}) } </p>

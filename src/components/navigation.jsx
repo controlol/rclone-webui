@@ -18,13 +18,13 @@ const Button = styled(normalButton)`
   gap: 0 .3rem;
 `
 
-const Navigation = ({ info }) => {
+const Navigation = ({ info, openBrowser }) => {
   const { errors, lastError } = info
 
   return (
     <NavigationContainer>
       <Error errorCount={errors} lastError={lastError} />
-      <Button>
+      <Button onClick={openBrowser}>
         <img src={BrowserSingle} alt="file browser" width="18" height="18" />
         File Browser
       </Button>
