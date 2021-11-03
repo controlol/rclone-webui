@@ -300,13 +300,13 @@ class FileBrowser extends Component {
   }
 
   // after the user clicks on a folder
-  updatePath = (isDir, name) => {
-    if (isDir && !(this.props.menuOpen || this.state.showMenu)) {
-      const newPath = path.join(this.props.currentPath, name)
+  updatePath = name => {
+    if (this.props.menuOpen || this.state.showMenu) return;
 
-      this.props.updateFiles(newPath)
-      this.setState({filter: ""})
-    }
+    const newPath = path.join(this.props.currentPath, name)
+
+    this.props.updateFiles(newPath)
+    this.setState({filter: ""})
   }
 
   // after the user clicks on the back button
@@ -413,7 +413,7 @@ class FileBrowser extends Component {
         { this.renderImage(v.MimeType, v.Name) }
         {
           v.IsDir ?
-            <DirNameP onClick={() => this.updatePath(v.IsDir, v.Name)} onContextMenu={this.openMenu}>{ v.Name }</DirNameP>
+            <DirNameP onClick={() => this.updatePath(v.Name)} onContextMenu={this.openMenu}>{ v.Name }</DirNameP>
             :
             <FilenameP onContextMenu={this.openMenu}>{ v.Name }</FilenameP>
         }
