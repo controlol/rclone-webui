@@ -4,6 +4,7 @@ import API from '../utils/API'
 import FileBrowser from './fileBrowser'
 import { BrowserSettingButton, FileBrowserRemotes, FileBrowsersContainer, FileBrowserSettings, FileBrowserWrapper, FileSettingsPopup, FileSettingsHeader, FileColumnSettingsContainer, RemoteButton } from './fileBrowser.styled'
 import assert from 'assert'
+import path from 'path'
 
 import BrowserSingle from '../assets/icons/browserSingle.svg'
 import BrowserDual from '../assets/icons/browserDual.svg'
@@ -126,18 +127,57 @@ class FileBrowserMenu extends Component {
    * @param {String} action type of action to be performed
    * @param {String} path dir or file
    */
-  doAction = (brIndex, action, path) => {
+  doAction = (brIndex, action, file) => {
     return new Promise((resolve, reject) => {
+      const fs = this.state.browserFs[brIndex] + ":",
+            remote = path.join(this.state.currentPath[brIndex], file)
+
       switch(action) {
         case "copy":
-          console.log("did copy", path)
-          break;
+          const dstFs = this.state.browserFs[brIndex === 0 ? 1 : 0] + ":",
+                dstRemote = this.state.currentPath[brIndex === 0 ? 1 : 0]
+
+          console.log({ fs, remote, dstFs, dstRemote })
+
+          return API.request({
+            url: "/sync/copy",
+            data: {
+              srcFs: fs + remote,
+              dstFs: dstFs + dstRemote,
+              _async: true
+            }
+          })
+          .then(resolve)
+          .catch(err => console.error(err))
         case "move":
-          console.log("did move", path)
+          console.log("did move", file)
           break;
         case "delete":
-          console.log("did delete", path)
+          console.log("did delete", file)
           break;
+        case "newfolder":
+          return API.request({
+            url: "/operations/mkdir",
+            data: {
+              fs, remote
+            }
+          })
+          .then(() => {
+            let { files } = this.state
+
+            files[brIndex].push({
+              Name: file,
+              ModTime: new Date(),
+              Size: -1,
+              IsDir: true,
+              MimeType: "inode/directory"
+            })
+
+            this.setState({ files })
+
+            return resolve()
+          })
+          .catch(reject)
         default: return reject(new Error("Invalid file action"))
       }
     })
@@ -236,8 +276,10 @@ class FileBrowserMenu extends Component {
   }
 
   renderRemoteButtons = () => {
+    const { browserFs, activeBrowser } = this.state
+
     return this.props.remotes.map(v => (
-      <RemoteButton key={v.name} onClick={() => this.setRemote(v.name)}> { v.name } </RemoteButton>
+      <RemoteButton key={v.name} onClick={() => this.setRemote(v.name)} active={browserFs[activeBrowser] === v.name}> { v.name } </RemoteButton>
     ))
   }
 
