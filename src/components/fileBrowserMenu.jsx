@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
-import { Button, Cross, PopupContainer, PopupTitle } from '../styled'
+import { Button, Checkbox, Cross, PopupContainer, PopupTitle } from '../styled'
 import API from '../utils/API'
 import FileBrowser from './fileBrowser'
-import { BrowserSettingButton, FileBrowserRemotes, FileBrowsersContainer, FileBrowserSettings, FileBrowserWrapper } from './fileBrowser.styled'
+import { BrowserSettingButton, FileBrowserRemotes, FileBrowsersContainer, FileBrowserSettings, FileBrowserWrapper, FileSettingsPopup, FileSettingsHeader, FileColumnSettingsContainer } from './fileBrowser.styled'
 import assert from 'assert'
 
 import BrowserSingle from '../assets/icons/browserSingle.svg'
 import BrowserDual from '../assets/icons/browserDual.svg'
+import SettingsCog from '../assets/icons/settings-cog.svg'
 
 class FileBrowserMenu extends Component {
   constructor() {
@@ -25,18 +26,33 @@ class FileBrowserMenu extends Component {
       loading: [false, false],
       errMessage: "",
       dualBrowser: false,
-      activeBrowser: 0
+      activeBrowser: 0,
+      showFileSettings: false,
+      shownColumns: {
+        size: true,
+        date: false,
+        datetime: false
+      }
     }
   }
 
   componentDidMount = () => {
     const browserFs = JSON.parse(sessionStorage.getItem("browserFs")),
-          currentPath = JSON.parse(sessionStorage.getItem("currentPath"))
+          currentPath = JSON.parse(sessionStorage.getItem("currentPath")),
+          shownColumns = JSON.parse(localStorage.getItem("shownbrowsercolumns"))
 
-    this.setState({ browserFs })
+    if (shownColumns !== null) this.setState({ shownColumns })
+
+    const tempPath = currentPath[0]
+    currentPath[0] = ""
+
+    this.setState({ browserFs, currentPath })
+
+    // add click event listener for closing settings
+    window.addEventListener('click', this.handleWindowClick)
 
     setTimeout(() => {
-      this.getFiles(0, currentPath[0])
+      this.getFiles(0, tempPath)
       .catch(() => {})
     }, 50)
   }
@@ -44,7 +60,13 @@ class FileBrowserMenu extends Component {
   componentWillUnmount = () => {
     sessionStorage.setItem("browserFs", JSON.stringify(this.state.browserFs))
     sessionStorage.setItem("currentPath", JSON.stringify(this.state.currentPath))
+    localStorage.setItem("shownbrowsercolumns", JSON.stringify(this.state.shownColumns))
+
+    window.removeEventListener('click', this.handleWindowClick)
   }
+
+  // stopPropagation does not work because it is a different event cause
+  handleWindowClick = () => this.setState({ showFileSettings: false })
 
   /**
    * 
@@ -116,9 +138,80 @@ class FileBrowserMenu extends Component {
     })
   }
 
+  handleColumnChange = ({target}) => {
+    const value = target.type === 'checkbox' ? target.checked : target.value
+    const name = target.name
+
+    let { shownColumns } = this.state
+
+    switch (name) {
+      case "size":
+        shownColumns.size = value
+        this.setState({ shownColumns })
+        break;
+      case "datetime":
+        if (value === true) {
+          shownColumns.datetime = true
+          shownColumns.date = false
+        } else {
+          shownColumns.datetime = false
+        }
+        this.setState({ shownColumns })
+        break;
+      case "date":
+        if (value === true) {
+          shownColumns.date = true
+          shownColumns.datetime = false
+        } else {
+          shownColumns.date = false
+        }
+        this.setState({ shownColumns })
+        break;
+      default: break;
+    }
+  }
+
+  openFileSettings = e => {
+    e.stopPropagation()
+    this.setState({ showFileSettings: true })
+  }
+
+  renderFileSettings = () => {
+    const { size, date, datetime } = this.state.shownColumns
+
+    if (this.state.showFileSettings) return (
+      <FileSettingsPopup onClick={e => e.stopPropagation()}>
+        <FileSettingsHeader> Columns </FileSettingsHeader>
+        <FileColumnSettingsContainer>
+          <div>
+            <Checkbox type="checkbox" id="datetime" name="datetime" checked={datetime} onChange={this.handleColumnChange} />
+            <label htmlFor="datetime"> Datetime </label>
+          </div>
+
+          <div>
+            <Checkbox type="checkbox" id="date" name="date" checked={date} onChange={this.handleColumnChange} />
+            <label htmlFor="date"> Date </label>
+          </div>
+
+          <div>
+            <Checkbox type="checkbox" id="size" name="size" checked={size} onChange={this.handleColumnChange} />
+            <label htmlFor="size"> Size </label>
+          </div>
+        </FileColumnSettingsContainer>
+      </FileSettingsPopup>
+    )
+  }
+
   switchBrowserMode = () => {
+    if (this.state.loading[0] || this.state.loading[1]) return;
+
     if (this.state.dualBrowser) return this.setState({ activeBrowser: 0, dualBrowser: false })
-    return this.setState({ activeBrowser: 1, dualBrowser: true })
+    let { currentPath } = this.state
+    const tempPath = currentPath[1]
+    currentPath[1] = ""
+
+    this.setState({ activeBrowser: 1, dualBrowser: true, currentPath })
+    this.getFiles(1, tempPath)
   }
 
   setActiveBrowser = activeBrowser => {
@@ -128,6 +221,7 @@ class FileBrowserMenu extends Component {
   setRemote = remoteName => {
     let { browserFs, currentPath, activeBrowser } = this.state
     browserFs[activeBrowser] = remoteName
+    currentPath[activeBrowser] = ""
 
     this.setState({ browserFs, currentPath })
     setTimeout(() => {
@@ -142,11 +236,15 @@ class FileBrowserMenu extends Component {
   }
 
   render = () => {
-    const { files, currentPath, loading, dualBrowser, activeBrowser } = this.state
+    const { files, currentPath, loading, dualBrowser, activeBrowser, shownColumns } = this.state
 
     return (
       <PopupContainer>
-        <PopupTitle> Browser </PopupTitle>
+        {
+          this.renderFileSettings()
+        }
+
+        <PopupTitle> File Browser </PopupTitle>
         <Cross onClick={this.props.close}> Close </Cross>
 
         <FileBrowsersContainer>
@@ -155,7 +253,10 @@ class FileBrowserMenu extends Component {
 
             <FileBrowserSettings>
               <BrowserSettingButton onClick={this.switchBrowserMode}>
-                <img src={dualBrowser ? BrowserSingle : BrowserDual} alt={dualBrowser ? "single browser" : "dual browser"} width="16" height="16" />
+                <img src={dualBrowser ? BrowserSingle : BrowserDual} alt={dualBrowser ? "single browser" : "dual browser"} width="20" height="20" />
+              </BrowserSettingButton>
+              <BrowserSettingButton onClick={this.openFileSettings}>
+                <img src={SettingsCog} alt="file settings" width="20" height="20" />
               </BrowserSettingButton>
             </FileBrowserSettings>
           </FileBrowserRemotes>
@@ -168,6 +269,7 @@ class FileBrowserMenu extends Component {
               updateFiles={path => this.getFiles(0, path)}
               currentPath={currentPath[0]}
               loading={loading[0]}
+              shownColumns={shownColumns}
               active={activeBrowser === 0}
             />
             {
@@ -179,6 +281,7 @@ class FileBrowserMenu extends Component {
                 updateFiles={path => this.getFiles(1, path)}
                 currentPath={currentPath[1]}
                 loading={loading[1]}
+                shownColumns={shownColumns}
                 active={activeBrowser === 1 && dualBrowser}
               />
             }

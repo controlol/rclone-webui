@@ -5,7 +5,6 @@ import { Input, Label } from './fileBrowser.styled.js'
 
 // images for different filetypes
 import Back from '../assets/icons/arrowLeft.svg'
-import SettingsCog from '../assets/icons/settings-cog.svg'
 
 import Other from '../assets/fileTypes/other.svg'
 import Folder from '../assets/fileTypes/folder.svg'
@@ -181,30 +180,6 @@ const SearchInput = styled(Input)`
   }
 `
 
-const FileSettingsPopup = styled.div`
-  min-width: 15rem;
-  background-color: var(--button-color);
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 900;
-  padding: 1rem;
-  border-radius: .3rem;
-  box-shadow: 0 0 .5rem rgba(0,0,0,.3);
-`
-
-const FileSettingsHeader = styled.h3`
-  text-align: center;
-  margin-bottom: 1rem;
-`
-
-const FileColumnSettingsContainer = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: .5rem 0;
-`
-
 const delay = t => new Promise(resolve => setTimeout(resolve, t))
 
 class FileBrowser extends Component {
@@ -218,12 +193,6 @@ class FileBrowser extends Component {
       prevPath: "",
       transitionFiles: 0,
       showMenu: false,
-      showFileSettings: false,
-      shownColumns: {
-        size: true,
-        date: false,
-        datetime: false
-      },
       cursorX: 0,
       cursorY: 0,
       clicked: "",
@@ -240,9 +209,6 @@ class FileBrowser extends Component {
 
   componentDidMount = () => {
     this.setState({ prevPath: this.props.currentPath, files: this.props.files })
-
-    const shownColumns = JSON.parse(localStorage.getItem("shownbrowsercolumns"))
-    if (shownColumns !== null) this.setState({ shownColumns })
 
     // add click event listener for closing menu
     window.addEventListener('click', this.handleWindowClick)
@@ -271,11 +237,9 @@ class FileBrowser extends Component {
 
   componentWillUnmount = () => {
     window.removeEventListener('click', this.handleWindowClick)
-
-    localStorage.setItem("shownbrowsercolumns", JSON.stringify(this.state.shownColumns))
   }
 
-  handleWindowClick = () => this.setState({ showMenu: false, showFileSettings: false })
+  handleWindowClick = () => this.setState({ showMenu: false })
 
   // used to filter the files
   handleInputChange({target}) {
@@ -399,70 +363,6 @@ class FileBrowser extends Component {
     })
   }
 
-  handleColumnChange = ({target}) => {
-    const value = target.type === 'checkbox' ? target.checked : target.value
-    const name = target.name
-
-    let { shownColumns } = this.state
-
-    switch (name) {
-      case "size":
-        shownColumns.size = value
-        this.setState({ shownColumns })
-        break;
-      case "datetime":
-        if (value === true) {
-          shownColumns.datetime = true
-          shownColumns.date = false
-        } else {
-          shownColumns.datetime = false
-        }
-        this.setState({ shownColumns })
-        break;
-      case "date":
-        if (value === true) {
-          shownColumns.date = true
-          shownColumns.datetime = false
-        } else {
-          shownColumns.date = false
-        }
-        this.setState({ shownColumns })
-        break;
-      default: break;
-    }
-  }
-
-  openFileSettings = e => {
-    e.stopPropagation()
-    this.setState({ showFileSettings: true })
-  }
-
-  renderFileSettings = () => {
-    const { size, date, datetime } = this.state.shownColumns
-
-    if (this.state.showFileSettings) return (
-      <FileSettingsPopup onClick={e => e.stopPropagation()}>
-        <FileSettingsHeader> Columns </FileSettingsHeader>
-        <FileColumnSettingsContainer>
-          <div>
-            <input type="checkbox" id="datetime" name="datetime" checked={datetime} onChange={this.handleColumnChange} />
-            <label htmlFor="datetime"> Datetime </label>
-          </div>
-
-          <div>
-            <input type="checkbox" id="date" name="date" checked={date} onChange={this.handleColumnChange} />
-            <label htmlFor="date"> Date </label>
-          </div>
-
-          <div>
-            <input type="checkbox" id="size" name="size" checked={size} onChange={this.handleColumnChange} />
-            <label htmlFor="size"> Size </label>
-          </div>
-        </FileColumnSettingsContainer>
-      </FileSettingsPopup>
-    )
-  }
-
   /**
    * Renders a simple menu to perform actions on the clicked file
    */
@@ -495,7 +395,7 @@ class FileBrowser extends Component {
     if (isNext)  files = this.props.files
     else        files = this.state.files
 
-    const { shownColumns } = this.state
+    const { shownColumns } = this.props
 
     files = this.getOrderedItems(files).slice(this.state.from, this.state.to)
 
@@ -565,30 +465,27 @@ class FileBrowser extends Component {
   )
 
   render() {
-    const { transitionFiles, from, to, orderBy, orderAscending, files, shownColumns } = this.state
+    const { transitionFiles, from, to, orderBy, orderAscending, files } = this.state
+    const { shownColumns, loading, active, setActive, currentPath } = this.props
     const rows = Math.max(this.props.files.length, files.length)
 
     return (
-      <FBContainer active={this.props.active} onClick={this.props.setActive}>
+      <FBContainer active={active} onClick={setActive}>
         {
           this.renderMenu()
         }
         {
-          this.renderFileSettings()
-        }
-        {
-          this.props.loading ? <LineLoader/> : ""
+          loading ? <LineLoader/> : ""
         }
         <BrowserHeader>
           <BrowserHeaderDiv>
             <BrowseImage src={Back} alt="up directory" width="25" height="25" onClick={this.previousDirectory} />
             <BrowseImage src={Home} alt="root directory" width="25" height="25" onClick={this.rootDirectory} />
-            <p> { this.props.currentPath !== "/" ? this.renderPath() : "/" } </p>
+            <p> { currentPath !== "/" ? this.renderPath() : "/" } </p>
           </BrowserHeaderDiv>
           <BrowserHeaderDiv>
             <SearchLabel htmlFor="filterFiles" style={{ textAlign: "end" }} > Search </SearchLabel>
             <SearchInput name="filter" id="filterFiles" type="text" placeholder="search" initialValue="" autoComplete="off" onChange={this.handleInputChange} />
-            <img src={SettingsCog} alt="settings" width="25" height="25" onClick={this.openFileSettings} />
           </BrowserHeaderDiv>
 
           <GridFileBrowser shownColumns={shownColumns}>

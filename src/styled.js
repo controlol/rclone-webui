@@ -1,5 +1,7 @@
 import styled from 'styled-components'
 
+import Checked from './assets/icons/checked.svg'
+
 export const Container = styled.div`
   display: flex;
   gap: 0 2rem;
@@ -334,4 +336,32 @@ export const IconWrapper = styled.div`
   justify-content: center;
   align-items: center;
   height: 100%;
+`
+
+export const Checkbox = styled.input`
+  display: none;
+
+  &[type=checkbox] + label {
+    position: relative;
+    margin-left: 1.5rem;
+  }
+
+  &[type=checkbox] + label::after {
+    content: '';
+    position: absolute;
+    top: .35rem;
+    left: -1.45rem;
+    width: .75rem;
+    height: .75rem;
+    outline: .1px solid var(--primary-color);
+  }
+
+  &[type=checkbox]:checked + label::after {
+    background: url(${Checked});
+    top: .15rem;
+    left: -1.5rem;
+    width: 1rem;
+    height: 1rem;
+    outline: unset;
+  }
 `
