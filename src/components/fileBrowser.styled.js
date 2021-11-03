@@ -55,7 +55,31 @@ export const FileBrowserSettings = styled.div`
 `
 
 export const BrowserSettingButton = styled(Button)`
-  padding: .5rem;
+  padding: .25rem .45rem;
   display: flex;
   align-items: center;
+`
+
+export const FileSettingsPopup = styled.div`
+  min-width: 15rem;
+  background-color: var(--button-color);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 900;
+  padding: 1rem;
+  border-radius: .3rem;
+  box-shadow: 0 0 .5rem rgba(0,0,0,.3);
+`
+
+export const FileSettingsHeader = styled.h3`
+  text-align: center;
+  margin-bottom: 1rem;
+`
+
+export const FileColumnSettingsContainer = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: .5rem 0;
 `
