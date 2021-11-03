@@ -45,6 +45,7 @@ export const FileBrowserRemotes = styled.div`
   display: flex;
   gap: .5rem;
   justify-content: flex-start;
+  flex-wrap: wrap;
 `
 
 export const FileBrowserSettings = styled.div`
@@ -52,6 +53,7 @@ export const FileBrowserSettings = styled.div`
   gap: .5rem;
   flex-grow: 1;
   justify-content: flex-end;
+  max-width: 100%;
 `
 
 export const BrowserSettingButton = styled(Button)`
@@ -82,4 +84,13 @@ export const FileColumnSettingsContainer = styled.form`
   display: flex;
   flex-direction: column;
   gap: .5rem 0;
+`
+
+export const RemoteButton = styled(Button)`
+  max-width: calc(100% - 2rem);
+  overflow: hidden;
+  direction: rtl;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `

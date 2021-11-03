@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
-import { Button, Checkbox, Cross, PopupContainer, PopupTitle } from '../styled'
+import React, { Component, Fragment } from 'react'
+import { Checkbox, Cross, PopupContainer, PopupTitle } from '../styled'
 import API from '../utils/API'
 import FileBrowser from './fileBrowser'
-import { BrowserSettingButton, FileBrowserRemotes, FileBrowsersContainer, FileBrowserSettings, FileBrowserWrapper, FileSettingsPopup, FileSettingsHeader, FileColumnSettingsContainer } from './fileBrowser.styled'
+import { BrowserSettingButton, FileBrowserRemotes, FileBrowsersContainer, FileBrowserSettings, FileBrowserWrapper, FileSettingsPopup, FileSettingsHeader, FileColumnSettingsContainer, RemoteButton } from './fileBrowser.styled'
 import assert from 'assert'
 
 import BrowserSingle from '../assets/icons/browserSingle.svg'
@@ -32,7 +32,8 @@ class FileBrowserMenu extends Component {
         size: true,
         date: false,
         datetime: false
-      }
+      },
+      windowWidth: 1920
     }
   }
 
@@ -46,10 +47,11 @@ class FileBrowserMenu extends Component {
     const tempPath = currentPath[0]
     currentPath[0] = ""
 
-    this.setState({ browserFs, currentPath })
+    this.setState({ browserFs, currentPath, windowWidth: window.innerWidth })
 
     // add click event listener for closing settings
     window.addEventListener('click', this.handleWindowClick)
+    window.addEventListener("orientationchange", this.handleOrientationChange)
 
     setTimeout(() => {
       this.getFiles(0, tempPath)
@@ -63,10 +65,13 @@ class FileBrowserMenu extends Component {
     localStorage.setItem("shownbrowsercolumns", JSON.stringify(this.state.shownColumns))
 
     window.removeEventListener('click', this.handleWindowClick)
+    window.removeEventListener("orientationchange", this.handleOrientationChange)
   }
 
   // stopPropagation does not work because it is a different event cause
   handleWindowClick = () => this.setState({ showFileSettings: false })
+
+  handleOrientationChange = () => this.setState({ windowWidth: window.innerWidth })
 
   /**
    * 
@@ -215,6 +220,7 @@ class FileBrowserMenu extends Component {
   }
 
   setActiveBrowser = activeBrowser => {
+    if (this.state.windowWidth < 1200 && this.state.dualBrowser === false) this.switchBrowserMode()
     if (this.state.dualBrowser) this.setState({ activeBrowser })
   }
 
@@ -231,13 +237,72 @@ class FileBrowserMenu extends Component {
 
   renderRemoteButtons = () => {
     return this.props.remotes.map(v => (
-      <Button key={v.name} onClick={() => this.setRemote(v.name)}> { v.name } </Button>
+      <RemoteButton key={v.name} onClick={() => this.setRemote(v.name)}> { v.name } </RemoteButton>
     ))
   }
 
-  render = () => {
-    const { files, currentPath, loading, dualBrowser, activeBrowser, shownColumns } = this.state
+  renderBrowser = () => {
+    const { files, currentPath, loading, dualBrowser, activeBrowser, shownColumns, windowWidth } = this.state
 
+    if (windowWidth >= 1200) return (
+      <Fragment>
+        <FileBrowser
+          setActive={() => this.setActiveBrowser(0)}
+          action={(a, p) => this.doAction(0, a, p)}
+          files={files[0]}
+          updateFiles={path => this.getFiles(0, path)}
+          currentPath={currentPath[0]}
+          loading={loading[0]}
+          shownColumns={shownColumns}
+          active={activeBrowser === 0}
+        />
+        {
+          dualBrowser &&
+          <FileBrowser
+          setActive={() => this.setActiveBrowser(1)}
+            action={(a, p) => this.doAction(1, a, p)}
+            files={files[1]}
+            updateFiles={path => this.getFiles(1, path)}
+            currentPath={currentPath[1]}
+            loading={loading[1]}
+            shownColumns={shownColumns}
+            active={activeBrowser === 1 && dualBrowser}
+          />
+        }
+      </Fragment>
+    )
+
+    return (
+      <FileBrowser
+      setActive={() => this.setActiveBrowser(activeBrowser)}
+        action={(a, p) => this.doAction(activeBrowser, a, p)}
+        files={files[activeBrowser]}
+        updateFiles={path => this.getFiles(activeBrowser, path)}
+        currentPath={currentPath[activeBrowser]}
+        loading={loading[activeBrowser]}
+        shownColumns={shownColumns}
+        active={false}
+      />
+    )
+  }
+
+  renderSwitchBrowser = () => {
+    const { currentPath, dualBrowser, activeBrowser, windowWidth } = this.state
+
+    if (windowWidth < 1200) return (
+      <RemoteButton onClick={() => this.setActiveBrowser(activeBrowser ? 0 : 1)}>
+        { currentPath[activeBrowser ? 0 : 1] }
+      </RemoteButton>
+    )
+
+    return (
+      <BrowserSettingButton onClick={this.switchBrowserMode}>
+        <img src={dualBrowser ? BrowserSingle : BrowserDual} alt={dualBrowser ? "single browser" : "dual browser"} width="20" height="20" />
+      </BrowserSettingButton>
+    )
+  }
+
+  render = () => {
     return (
       <PopupContainer>
         {
@@ -252,9 +317,7 @@ class FileBrowserMenu extends Component {
             { this.renderRemoteButtons() }
 
             <FileBrowserSettings>
-              <BrowserSettingButton onClick={this.switchBrowserMode}>
-                <img src={dualBrowser ? BrowserSingle : BrowserDual} alt={dualBrowser ? "single browser" : "dual browser"} width="20" height="20" />
-              </BrowserSettingButton>
+              { this.renderSwitchBrowser() }
               <BrowserSettingButton onClick={this.openFileSettings}>
                 <img src={SettingsCog} alt="file settings" width="20" height="20" />
               </BrowserSettingButton>
@@ -262,29 +325,7 @@ class FileBrowserMenu extends Component {
           </FileBrowserRemotes>
 
           <FileBrowserWrapper>
-            <FileBrowser
-              setActive={() => this.setActiveBrowser(0)}
-              action={(a, p) => this.doAction(0, a, p)}
-              files={files[0]}
-              updateFiles={path => this.getFiles(0, path)}
-              currentPath={currentPath[0]}
-              loading={loading[0]}
-              shownColumns={shownColumns}
-              active={activeBrowser === 0}
-            />
-            {
-              dualBrowser &&
-              <FileBrowser
-              setActive={() => this.setActiveBrowser(1)}
-                action={(a, p) => this.doAction(1, a, p)}
-                files={files[1]}
-                updateFiles={path => this.getFiles(1, path)}
-                currentPath={currentPath[1]}
-                loading={loading[1]}
-                shownColumns={shownColumns}
-                active={activeBrowser === 1 && dualBrowser}
-              />
-            }
+            { this.renderBrowser() }
           </FileBrowserWrapper>
         </FileBrowsersContainer>
       </PopupContainer>
