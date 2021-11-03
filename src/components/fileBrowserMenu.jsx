@@ -25,7 +25,7 @@ class FileBrowserMenu extends Component {
       loading: [false, false],
       errMessage: "",
       dualBrowser: false,
-      activeBrowser: -1
+      activeBrowser: 0
     }
   }
 
@@ -117,7 +117,7 @@ class FileBrowserMenu extends Component {
   }
 
   switchBrowserMode = () => {
-    if (this.state.dualBrowser) return this.setState({ activeBrowser: -1, dualBrowser: false })
+    if (this.state.dualBrowser) return this.setState({ activeBrowser: 0, dualBrowser: false })
     return this.setState({ activeBrowser: 1, dualBrowser: true })
   }
 
@@ -125,20 +125,19 @@ class FileBrowserMenu extends Component {
     if (this.state.dualBrowser) this.setState({ activeBrowser })
   }
 
-  setRemote = (brIndex, remoteName) => {
-    let { browserFs, currentPath } = this.state
-    browserFs[brIndex] = remoteName
+  setRemote = remoteName => {
+    let { browserFs, currentPath, activeBrowser } = this.state
+    browserFs[activeBrowser] = remoteName
 
     this.setState({ browserFs, currentPath })
     setTimeout(() => {
-      this.getFiles(brIndex, "/")
+      this.getFiles(activeBrowser, "/")
     }, 50)
   }
 
-  renderRemoteButtons = brIndex => {
-    assert( brIndex === 0 || brIndex === 1, {brIndex})
+  renderRemoteButtons = () => {
     return this.props.remotes.map(v => (
-      <Button key={v.name} onClick={() => this.setRemote(brIndex, v.name)}> { v.name } </Button>
+      <Button key={v.name} onClick={() => this.setRemote(v.name)}> { v.name } </Button>
     ))
   }
 
@@ -152,7 +151,7 @@ class FileBrowserMenu extends Component {
 
         <FileBrowsersContainer>
           <FileBrowserRemotes>
-            { this.renderRemoteButtons(0) }
+            { this.renderRemoteButtons() }
 
             <FileBrowserSettings>
               <BrowserSettingButton onClick={this.switchBrowserMode}>
@@ -180,7 +179,7 @@ class FileBrowserMenu extends Component {
                 updateFiles={path => this.getFiles(1, path)}
                 currentPath={currentPath[1]}
                 loading={loading[1]}
-                active={activeBrowser === 1}
+                active={activeBrowser === 1 && dualBrowser}
               />
             }
           </FileBrowserWrapper>
