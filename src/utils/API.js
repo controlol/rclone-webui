@@ -37,7 +37,10 @@ class API {
         }
 
         // log error and reject
-        console.error(err)
+        if (err?.response?.data?.error) {
+          console.error(err.response.status, err.response.data.error)
+          return reject(err.response.data.error)
+        }
         return reject()
       })
     })
