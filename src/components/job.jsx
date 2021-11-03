@@ -121,6 +121,9 @@ class Job extends Component {
             <p> Progress: </p>
             <p> { ((stats.bytes / stats.totalBytes) * 100 || 0).toFixed(2) } % </p>
 
+            <p> Speed: </p>
+            <p> { bytesToString(stats.speed, { speed: true }) } </p>
+
             <StopButton onClick={this.stopJob}> Cancel </StopButton>
           </ActiveJob>
           { this.renderActiveTransfer() }
