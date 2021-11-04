@@ -75,5 +75,34 @@ export const RemoteButton = styled(Button)`
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
-  background-color: ${({active}) => active ? "var(--button-hover)" : "var(--button-color)"}
+  background-color: ${({active}) => active ? "var(--button-hover)" : "var(--button-color)"};
+`
+
+export const FileMenuContainer = styled.div`
+  position: fixed;
+  top: ${({cursorY}) => cursorY - 3}px;
+  left: ${({cursorX}) => cursorX + 3}px;
+  background-color: var(--button-color);
+  z-index: 900;
+  border-radius: .2rem;
+
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+
+  div {
+    text-align: left;
+  }
+`
+
+export const ButtonWrapper = styled.div`
+  display: flex;
+  margin-top: .5rem;
+  gap: .5rem;
+  width: 100%;
+  justify-content: center;
 `

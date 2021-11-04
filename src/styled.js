@@ -383,3 +383,7 @@ export const Input = styled.input`
     background-color: var(--button-hover);
   }
 `
+
+export const WarningButton = styled(Button)`
+  background: var(--warning-red);
+`

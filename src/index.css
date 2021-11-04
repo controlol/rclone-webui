@@ -21,6 +21,7 @@ html {
 
   --status-red: linear-gradient(#fd4444aa, #c92222);
   --status-green: linear-gradient(#3bc322aa, #3c891c);
+  --warning-red: var(--status-red);
 
   --button-color: #fafafa;
   --button-hover: #e4e4e4;
