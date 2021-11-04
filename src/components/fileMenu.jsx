@@ -56,7 +56,7 @@ class FileMenu extends Component {
 
         <form onSubmit={this.doAction}>
           <Input type="text" name="newFile" id="newFile" autoFocus value={newFile} onChange={this.handleInputChange} autoComplete="off" />
-          <Button type="submit"> Submit </Button>
+          <Button onClick={this.doAction}> Submit </Button>
         </form>
       </FileSettingsPopup>
     )
