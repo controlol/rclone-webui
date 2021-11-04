@@ -5,6 +5,7 @@ import FileBrowser from './fileBrowser'
 import { BrowserSettingButton, FileBrowserRemotes, FileBrowsersContainer, FileBrowserSettings, FileBrowserWrapper, FileSettingsPopup, FileSettingsHeader, FileColumnSettingsContainer, RemoteButton } from './fileBrowser.styled'
 import assert from 'assert'
 import path from 'path'
+import FileMenu from './fileMenu'
 
 import BrowserSingle from '../assets/icons/browserSingle.svg'
 import BrowserDual from '../assets/icons/browserDual.svg'
@@ -34,6 +35,13 @@ class FileBrowserMenu extends Component {
         date: false,
         datetime: false
       },
+      menuInfo: {
+        cursorX: 0,
+        cursorY: 0,
+        brIndex: -1,
+        file: {},
+        otherPath: ""
+      },
       windowWidth: 1920
     }
   }
@@ -53,6 +61,7 @@ class FileBrowserMenu extends Component {
     // add click event listener for closing settings
     window.addEventListener('click', this.handleWindowClick)
     window.addEventListener("orientationchange", this.handleOrientationChange)
+    window.addEventListener('keyup', this.handleKeyup)
 
     setTimeout(() => {
       this.getFiles(0, tempPath)
@@ -67,12 +76,30 @@ class FileBrowserMenu extends Component {
 
     window.removeEventListener('click', this.handleWindowClick)
     window.removeEventListener("orientationchange", this.handleOrientationChange)
+    window.removeEventListener('keyup', this.handleKeyup)
   }
 
-  // stopPropagation does not work because it is a different event cause
-  handleWindowClick = () => this.setState({ showFileSettings: false })
+  /**
+   * closes any open menu
+   * stopPropagation does not work here because it is a different event
+   */
+  handleWindowClick = () => {
+    this.setState({ showFileSettings: false })
+    this.closeMenu()
+  }
 
+  // update the innerwidth, used to determine wether to show one or two browsers
   handleOrientationChange = () => this.setState({ windowWidth: window.innerWidth })
+
+  /**
+   * closes the menu if the user presses the escape key
+   */
+  handleKeyup = e => {
+    if (e.key === "Escape") {
+      this.setState({ showFileSettings: false })
+      this.closeMenu()
+    }
+  }
 
   /**
    * 
@@ -125,62 +152,119 @@ class FileBrowserMenu extends Component {
    * 
    * @param {Number} brIndex identify which browser wants to do the action
    * @param {String} action type of action to be performed
-   * @param {String} path dir or file
+   * @param {String} newFile only used when creating a dir or renaming
    */
-  doAction = (brIndex, action, file) => {
-    return new Promise((resolve, reject) => {
-      const fs = this.state.browserFs[brIndex] + ":",
-            remote = path.join(this.state.currentPath[brIndex], file)
+  doAction = (brIndex, action, newFile) => {
+    if (!action) return this.closeMenu()
 
-      switch(action) {
-        case "copy":
-          const dstFs = this.state.browserFs[brIndex === 0 ? 1 : 0] + ":",
-                dstRemote = this.state.currentPath[brIndex === 0 ? 1 : 0]
+    // dir or file, only used when renaming
+    let clickedFile = this.state.menuInfo.file
 
-          console.log({ fs, remote, dstFs, dstRemote })
+    const fs = this.state.browserFs[brIndex] + ":",
+          remote = path.join(this.state.currentPath[brIndex], clickedFile.Name || newFile),
+          dstFs = this.state.browserFs[brIndex === 0 ? 1 : 0] + ":",
+          dstRemote = path.join(this.state.currentPath[brIndex === 0 ? 1 : 0], newFile || clickedFile.Name)
 
+    switch(action) {
+      case "copy":
+        return API.request({
+          url: clickedFile.IsDir ? "/sync/copy" : "/operations/copyfile",
+          data: Object.assign({
+            _async: true
+          }, clickedFile.IsDir ? { srcFs: fs + remote, dstFs: dstFs + dstRemote, } : { srcFs: fs, srcRemote: remote, dstFs, dstRemote })
+        })
+        .catch(err => console.error(err))
+        .finally(this.closeMenu)
+      case "move":
+        return API.request({
+          url: clickedFile.IsDir ? "/sync/move" : "/operations/movefile",
+          data: Object.assign({
+            _async: true
+          }, clickedFile.IsDir ? { srcFs: fs + remote, dstFs: dstFs + dstRemote, } : { srcFs: fs, srcRemote: remote, dstFs, dstRemote })
+        })
+        .catch(err => console.error(err))
+        .finally(this.closeMenu)
+      case "delete":
+        return API.request({
+          url: "operations/" + (clickedFile.IsDir ? "purge" : "deletefile"),
+          data: { fs, remote, _async: true }
+        })
+        .then(() => {
+          let { files } = this.state
+          files[brIndex] = files[brIndex].filter(v => v.Name !== clickedFile.Name)
+          this.setState({ files })
+        })
+        .catch(err => console.error(err))
+        .finally(this.closeMenu)
+      case "rename":
+        if (clickedFile.IsDir) return API.request({
+          url: "/operations/mkdir",
+          data: { fs, remote: dstRemote }
+        })
+        .then(() => {
           return API.request({
-            url: "/sync/copy",
+            url: "/sync/move",
             data: {
               srcFs: fs + remote,
-              dstFs: dstFs + dstRemote,
-              _async: true
-            }
-          })
-          .then(resolve)
-          .catch(err => console.error(err))
-        case "move":
-          console.log("did move", file)
-          break;
-        case "delete":
-          console.log("did delete", file)
-          break;
-        case "newfolder":
-          return API.request({
-            url: "/operations/mkdir",
-            data: {
-              fs, remote
+              dstFs: fs + path.join(this.state.currentPath[brIndex], newFile)
             }
           })
           .then(() => {
-            let { files } = this.state
-
-            files[brIndex].push({
-              Name: file,
-              ModTime: new Date(),
-              Size: -1,
-              IsDir: true,
-              MimeType: "inode/directory"
+            return API.request({
+              url: "/operations/purge",
+              data: { fs, remote, _async: true }
             })
-
-            this.setState({ files })
-
-            return resolve()
+            .then(() => {
+              let { files } = this.state
+              let f = files[brIndex].filter(v => v.Name === clickedFile.Name)[0]
+              f.Name = newFile
+              this.setState({ files })
+            })
+            .catch(err => console.error(err))
           })
-          .catch(reject)
-        default: return reject(new Error("Invalid file action"))
-      }
-    })
+          .catch(err => console.error(err))
+        })
+        .catch(err => console.error(err))
+        .finally(this.closeMenu)
+
+        return API.request({
+          url: clickedFile.IsDir ? "/sync/copy" : "/operations/movefile",
+          data: { srcFs: fs,
+            srcRemote: remote,
+            dstFs: fs,
+            dstRemote: path.join(this.state.currentPath[brIndex], newFile)
+          }
+        })
+        .then(() => {
+          let { files } = this.state
+          let f = files[brIndex].filter(v => v.Name === clickedFile.Name)[0]
+          f.Name = newFile
+          this.setState({ files })
+        })
+        .catch(err => console.error(err))
+        .finally(this.closeMenu)
+      case "newfolder":
+        return API.request({
+          url: "/operations/mkdir",
+          data: { fs, remote }
+        })
+        .then(() => {
+          let { files } = this.state
+
+          files[brIndex].push({
+            Name: newFile,
+            ModTime: new Date(),
+            Size: -1,
+            IsDir: true,
+            MimeType: "inode/directory"
+          })
+
+          this.setState({ files })
+        })
+        .catch(() => {})
+        .finally(this.closeMenu)
+      default: assert(false);
+    }
   }
 
   handleColumnChange = ({target}) => {
@@ -216,35 +300,51 @@ class FileBrowserMenu extends Component {
     }
   }
 
+  /**
+   * Opens the actions menu
+   * @param {ElementEvent} e The event that called this function
+   * @param {Boolean} isFile was a file clicked
+   */
+  openMenu = (brIndex, e, isFile) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    assert(
+      typeof e.pageX === "number"
+      && typeof e.pageY === "number"
+      && typeof e.target.innerHTML === "string"
+      && e.target.innerHTML.length > 0
+    )
+
+    let file = {}
+    if (isFile) file = this.state.files[brIndex].filter(v => v.Name === e.target.innerHTML)[0]
+
+    this.setState({
+      menuInfo: {
+        file,
+        brIndex,
+        cursorX: e.pageX,
+        cursorY: e.pageY,
+        otherPath: this.state.currentPath[brIndex === 0 ? 1 : 0]
+      }
+    })
+  }
+
+  closeMenu = () => {
+    this.setState({
+      menuInfo: {
+        cursorX: 0,
+        cursorY: 0,
+        brIndex: -1,
+        file: {},
+        otherPath: ""
+      }
+    })
+  }
+
   openFileSettings = e => {
     e.stopPropagation()
     this.setState({ showFileSettings: true })
-  }
-
-  renderFileSettings = () => {
-    const { size, date, datetime } = this.state.shownColumns
-
-    if (this.state.showFileSettings) return (
-      <FileSettingsPopup onClick={e => e.stopPropagation()}>
-        <FileSettingsHeader> Columns </FileSettingsHeader>
-        <FileColumnSettingsContainer>
-          <div>
-            <Checkbox type="checkbox" id="datetime" name="datetime" checked={datetime} onChange={this.handleColumnChange} />
-            <label htmlFor="datetime"> Datetime </label>
-          </div>
-
-          <div>
-            <Checkbox type="checkbox" id="date" name="date" checked={date} onChange={this.handleColumnChange} />
-            <label htmlFor="date"> Date </label>
-          </div>
-
-          <div>
-            <Checkbox type="checkbox" id="size" name="size" checked={size} onChange={this.handleColumnChange} />
-            <label htmlFor="size"> Size </label>
-          </div>
-        </FileColumnSettingsContainer>
-      </FileSettingsPopup>
-    )
   }
 
   switchBrowserMode = () => {
@@ -275,6 +375,42 @@ class FileBrowserMenu extends Component {
     }, 50)
   }
 
+  /**
+   * Renders a simple menu to perform actions on the clicked file
+   */
+  renderMenu = () => {
+    const { menuInfo } = this.state
+    const { brIndex } = menuInfo
+
+    if (brIndex !== -1) return <FileMenu info={menuInfo} action={(action, file) => this.doAction(brIndex, action, file)} hideMenu={() => this.setState({ showMenu: false })} />
+  }
+
+  renderFileSettings = () => {
+    const { size, date, datetime } = this.state.shownColumns
+
+    if (this.state.showFileSettings) return (
+      <FileSettingsPopup onClick={e => e.stopPropagation()}>
+        <FileSettingsHeader> Columns </FileSettingsHeader>
+        <FileColumnSettingsContainer>
+          <div>
+            <Checkbox type="checkbox" id="datetime" name="datetime" checked={datetime} onChange={this.handleColumnChange} />
+            <label htmlFor="datetime"> Datetime </label>
+          </div>
+
+          <div>
+            <Checkbox type="checkbox" id="date" name="date" checked={date} onChange={this.handleColumnChange} />
+            <label htmlFor="date"> Date </label>
+          </div>
+
+          <div>
+            <Checkbox type="checkbox" id="size" name="size" checked={size} onChange={this.handleColumnChange} />
+            <label htmlFor="size"> Size </label>
+          </div>
+        </FileColumnSettingsContainer>
+      </FileSettingsPopup>
+    )
+  }
+
   renderRemoteButtons = () => {
     const { browserFs, activeBrowser } = this.state
 
@@ -286,46 +422,28 @@ class FileBrowserMenu extends Component {
   renderBrowser = () => {
     const { files, currentPath, loading, dualBrowser, activeBrowser, shownColumns, windowWidth } = this.state
 
+    const data = files.map((files, i) => ({
+      files,
+      setActive: () => this.setActiveBrowser(i),
+      updateFiles: path => this.getFiles(i, path),
+      currentPath: currentPath[i],
+      loading: loading[i],
+      shownColumns: shownColumns,
+      active: activeBrowser === i && dualBrowser,
+      openMenu: (e, isFile) => this.openMenu(i, e, isFile)
+    }))
+
     if (windowWidth >= 1200) return (
       <Fragment>
-        <FileBrowser
-          setActive={() => this.setActiveBrowser(0)}
-          action={(a, p) => this.doAction(0, a, p)}
-          files={files[0]}
-          updateFiles={path => this.getFiles(0, path)}
-          currentPath={currentPath[0]}
-          loading={loading[0]}
-          shownColumns={shownColumns}
-          active={activeBrowser === 0}
-        />
+        <FileBrowser {...data[0]} />
         {
           dualBrowser &&
-          <FileBrowser
-          setActive={() => this.setActiveBrowser(1)}
-            action={(a, p) => this.doAction(1, a, p)}
-            files={files[1]}
-            updateFiles={path => this.getFiles(1, path)}
-            currentPath={currentPath[1]}
-            loading={loading[1]}
-            shownColumns={shownColumns}
-            active={activeBrowser === 1 && dualBrowser}
-          />
+          <FileBrowser {...data[1]} />
         }
       </Fragment>
     )
 
-    return (
-      <FileBrowser
-      setActive={() => this.setActiveBrowser(activeBrowser)}
-        action={(a, p) => this.doAction(activeBrowser, a, p)}
-        files={files[activeBrowser]}
-        updateFiles={path => this.getFiles(activeBrowser, path)}
-        currentPath={currentPath[activeBrowser]}
-        loading={loading[activeBrowser]}
-        shownColumns={shownColumns}
-        active={false}
-      />
-    )
+    return <FileBrowser {...data[activeBrowser]} />
   }
 
   renderSwitchBrowser = () => {
@@ -347,9 +465,8 @@ class FileBrowserMenu extends Component {
   render = () => {
     return (
       <PopupContainer>
-        {
-          this.renderFileSettings()
-        }
+        { this.renderFileSettings() }
+        { this.renderMenu() }
 
         <PopupTitle> File Browser </PopupTitle>
         <Cross onClick={this.props.close}> Close </Cross>

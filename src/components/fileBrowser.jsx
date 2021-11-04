@@ -1,7 +1,7 @@
 import { Component, Fragment } from 'react'
 import path from 'path'
 import styled from 'styled-components'
-import { FileSettingsHeader, FileSettingsPopup, Label } from './fileBrowser.styled.js'
+import { Label } from './fileBrowser.styled.js'
 import { Input } from '../styled'
 
 // images for different filetypes
@@ -38,8 +38,6 @@ import ZIP from '../assets/fileTypes/zip.svg'
 
 import CaretDown from '../assets/icons/caretDown.svg'
 import bytesToString from '../utils/bytestring.js'
-import { Button } from '../styled.js'
-import assert from 'assert'
 import LineLoader from './LineLoader.jsx'
 
 const ROW_HEIGHT = 28
@@ -184,19 +182,6 @@ const SearchInput = styled(Input)`
   }
 `
 
-const FileMenuContainer = styled.div`
-  position: fixed;
-  top: ${({cursorY}) => cursorY - 3}px;
-  left: ${({cursorX}) => cursorX + 3}px;
-  background-color: var(--button-color);
-  z-index: 900;
-  border-radius: .2rem;
-
-  div {
-    text-align: left;
-  }
-`
-
 const delay = t => new Promise(resolve => setTimeout(resolve, t))
 
 class FileBrowser extends Component {
@@ -232,10 +217,9 @@ class FileBrowser extends Component {
     window.addEventListener('click', this.handleWindowClick)
   }
 
-  componentDidUpdate = () => {
+  componentDidUpdate = (prevProps) => {
     // if the component was just created set the path
-    if (this.state.prevPath === "" && this.props.currentPath !== "") return this.setState({ prevPath: this.props.currentPath, files: this.props.files })
-
+    if (prevProps.currentPath === "" && this.props.currentPath !== "") return this.setState({ prevPath: this.props.currentPath, files: this.props.files })
 
     // the path changed
     if (this.props.currentPath !== this.state.prevPath) {
@@ -250,6 +234,8 @@ class FileBrowser extends Component {
       delay(300).then(() => this.setState({ transitionFiles: 3 * direction, files: this.props.files }))
       // delay(11500).then(() => this.setState({ transitionFiles: 3 }))
       delay(600).then(() => this.setState({ transitionFiles: 0 }))
+    } else if (prevProps.files !== this.props.files) {
+      this.setState({ files: this.props.files })
     }
   }
 
@@ -363,103 +349,6 @@ class FileBrowser extends Component {
   }
 
   /**
-   * Wrapper for the props.action function
-   * @param {String} a type of action to be performed
-   * @returns {Promise}
-   */
-  doAction = a => this.props.action(a, this.state.clicked).catch(err => console.error(err))
-
-  /**
-   * Opens the actions menu
-   * @param {ElementEvent} e The event that called this function
-   */
-  openMenu = (e, isFile) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    assert(
-      typeof e.pageX === "number"
-      && typeof e.pageY === "number"
-      && typeof e.target.innerHTML === "string"
-      && e.target.innerHTML.length > 0
-    )
-
-    if (isFile) {
-      this.setState({
-        cursorX: e.pageX,
-        cursorY: e.pageY,
-        showMenu: true,
-        clicked: e.target.innerHTML
-      })
-    } else {
-      this.setState({
-        cursorX: e.pageX,
-        cursorY: e.pageY,
-        showMenu: true,
-        clicked: ""
-      })
-    }
-  }
-
-  openNewFolderPopup = e => {
-    e.stopPropagation()
-    return this.setState({ showNewFolder: true, showMenu: false })
-  }
-
-  handleNewFolderSubmit = e => {
-    e.preventDefault()
-    this.props.action("newfolder", e.target.newFolderName.value)
-    .then(() => this.setState({ showNewFolder: false }))
-    .catch(err => {
-      console.error(err)
-      this.setState({ showNewFolder: false })
-    }) // the user should see this error
-  }
-
-  renderNewFolderPopup = () => {
-    if (this.state.showNewFolder) return (
-      <FileSettingsPopup onClick={e => e.stopPropagation()}>
-        <label htmlFor="newFolderName">
-          <FileSettingsHeader> New Folder </FileSettingsHeader>
-        </label>
-
-        <form onSubmit={this.handleNewFolderSubmit}>
-          <Input type="text" name="newFolderName" id="newFolderName" autoFocus defaultValue="" autoComplete="off" />
-          <input type="submit" style={{visibility: "hidden"}} />
-        </form>
-      </FileSettingsPopup>
-    )
-  }
-
-  /**
-   * Renders a simple menu to perform actions on the clicked file
-   */
-  renderMenu = () => {
-    const { cursorX, cursorY, showMenu, clicked } = this.state
-
-    if (showMenu && clicked.length) return (
-      <FileMenuContainer
-        onMouseLeave={() => this.setState({ showMenu: false })}
-        cursorX={cursorX} cursorY={cursorY}
-      >
-        <Button onClick={() => this.doAction("copy")}> Copy </Button>
-        <Button onClick={() => this.doAction("move")}> Move </Button>
-        <Button onClick={() => this.doAction("delete")}> Delete </Button>
-        <Button onClick={this.openNewFolderPopup}> New Folder </Button>
-      </FileMenuContainer>
-    )
-
-    if (showMenu) return (
-      <FileMenuContainer
-        onMouseLeave={() => this.setState({ showMenu: false })}
-        cursorX={cursorX} cursorY={cursorY}
-      >
-        <Button onClick={this.openNewFolderPopup}> New Folder </Button>
-      </FileMenuContainer>
-    )
-  }
-
-  /**
    * Render the files found in a directory
    * @param {Boolean} isNext are these the next files to be rendered, if so use props instead of state
    */
@@ -478,9 +367,9 @@ class FileBrowser extends Component {
         { this.renderImage(MimeType, Name) }
         {
           IsDir ?
-            <DirNameP onClick={() => this.updatePath(Name)} onContextMenu={e => this.openMenu(e, true)}>{ Name }</DirNameP>
+            <DirNameP onClick={() => this.updatePath(Name)} onContextMenu={e => this.props.openMenu(e, true)}>{ Name }</DirNameP>
             :
-            <FilenameP onContextMenu={e => this.openMenu(e, true)}>{ Name }</FilenameP>
+            <FilenameP onContextMenu={e => this.props.openMenu(e, true)}>{ Name }</FilenameP>
         }
         <ModifiedP shownColumns={shownColumns}> { shownColumns.datetime ? ModTime?.toLocaleString() : ModTime?.toLocaleDateString() } </ModifiedP>
         <SizeP shownColumns={shownColumns}> { !IsDir ? bytesToString(Size, {}) : "" } </SizeP>
@@ -544,8 +433,6 @@ class FileBrowser extends Component {
 
     return (
       <FBContainer active={active} onClick={setActive}>
-        { this.renderMenu() }
-        { this.renderNewFolderPopup() }
         { loading === true && <LineLoader/> }
 
         <BrowserHeader>
@@ -609,7 +496,7 @@ class FileBrowser extends Component {
           </GridFileBrowser>
         </BrowserHeader>
 
-        <BrowserWrapper onScroll={this.handleGridScroll} onContextMenu={e => this.openMenu(e, false)}>
+        <BrowserWrapper onScroll={this.handleGridScroll} onContextMenu={e => this.props.openMenu(e, false)}>
           {
             transitionFiles !== 0 &&
             <GridFileBrowser shownColumns={shownColumns} style={{
