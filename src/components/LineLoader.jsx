@@ -24,7 +24,7 @@ const LoaderContainer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 100;
+  z-index: 1000;
   background-color: rgba(255,255,255,.1);
   overflow: hidden;
 
