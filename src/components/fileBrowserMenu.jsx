@@ -157,6 +157,8 @@ class FileBrowserMenu extends Component {
   doAction = (brIndex, action, newFile) => {
     if (!action) return this.closeMenu()
 
+    this.setState({ loading: [ true, true ] })
+
     // dir or file, only used when renaming
     let clickedFile = this.state.menuInfo.file
 
@@ -338,7 +340,8 @@ class FileBrowserMenu extends Component {
         brIndex: -1,
         file: {},
         otherPath: ""
-      }
+      },
+      loading: [ false, false ]
     })
   }
 
